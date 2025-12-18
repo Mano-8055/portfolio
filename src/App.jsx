@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./styles.css";
+import profilePic from "./assets/manobala.jpg";
+
 
 
 function App() {
@@ -105,9 +107,14 @@ function Home() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <div className="hero-avatar-placeholder">
-            <span>MS</span>
-          </div>
+          <div className="hero-avatar-wrapper">
+          <img
+            src={profilePic}
+            alt="Manobala S"
+            className="hero-avatar-img"
+          />
+        </div>
+
           <p className="hero-card-heading">Currently</p>
           <p className="hero-card-text">
             Integrated M.Tech in Software Engineering<br />
