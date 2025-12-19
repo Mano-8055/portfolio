@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./styles.css";
-import profilePic from "./assets/manobala.jpg";
+
 
 
 
@@ -102,34 +102,32 @@ function Home() {
         </div>
 
         <motion.div
-          className="hero-card"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="hero-avatar-wrapper">
-          <img
-            src={profilePic}
-            alt="Manobala S"
-            className="hero-avatar-img"
-          />
-        </div>
+  className="hero-card"
+  initial={{ opacity: 0, x: 40 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.7 }}
+>
+  <div>
+    <p className="hero-card-heading">Currently</p>
+    <p className="hero-card-text">
+      Integrated M.Tech in Software Engineering<br />
+      <span className="hero-highlight">
+        VIT Vellore • CGPA: 8.4 • Graduation: 2027
+      </span>
+    </p>
 
-          <p className="hero-card-heading">Currently</p>
-          <p className="hero-card-text">
-            Integrated M.Tech in Software Engineering<br />
-            <span className="hero-highlight">VIT Vellore • CGPA: 8.4 • Graduation: 2027</span>
-          </p>
-          <p className="hero-card-heading">GitHub</p>
-          <a
-            href="https://github.com/Mano-8055"
-            target="_blank"
-            rel="noreferrer"
-            className="hero-link"
-          >
-            github.com/Mano-8055
-          </a>
-        </motion.div>
+    <p className="hero-card-heading">GitHub</p>
+    <a
+      href="https://github.com/Mano-8055"
+      target="_blank"
+      rel="noreferrer"
+      className="hero-link"
+    >
+      github.com/Mano-8055
+    </a>
+  </div>
+</motion.div>
+
       </div>
     </motion.section>
   );

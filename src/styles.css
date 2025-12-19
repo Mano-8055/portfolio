@@ -30,9 +30,79 @@ html {
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--bg-dark);
+
+  /* IMPORTANT FIX 👇 */
+  background: transparent;     /* allow gradient to show */
   color: var(--text-main-dark);
+
+  position: relative;
+  overflow-x: hidden;
 }
+
+
+/* ---------------- MOUSE INTERACTIVE GRADIENT ---------------- */
+
+.mouse-gradient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;              /* 👈 ABOVE background */
+  filter: blur(80px);
+}
+
+.mouse-gradient.primary {
+  background:
+    radial-gradient(
+      600px circle at var(--mouse-x) var(--mouse-y),
+      rgba(99, 102, 241, 0.35),
+      transparent 45%
+    );
+}
+
+.mouse-gradient.secondary {
+  background:
+    radial-gradient(
+      800px circle at calc(var(--mouse-x) + 150px)
+      calc(var(--mouse-y) - 120px),
+      rgba(236, 72, 153, 0.28),
+      transparent 55%
+    );
+}
+
+
+/* Light mode */
+.app-light .mouse-gradient.primary {
+  background:
+    radial-gradient(
+      500px circle at var(--mouse-x) var(--mouse-y),
+      rgba(99, 102, 241, 0.15),
+      transparent 45%
+    );
+}
+
+.app-light .mouse-gradient.secondary {
+  background:
+    radial-gradient(
+      700px circle at calc(var(--mouse-x) + 120px)
+      calc(var(--mouse-y) - 80px),
+      rgba(34, 197, 94, 0.12),
+      transparent 55%
+    );
+}
+
+/* Keep UI above gradient */
+.app > *:not(.mouse-gradient) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Disable on mobile */
+@media (max-width: 768px) {
+  .mouse-gradient {
+    display: none;
+  }
+}
+
 
 /* THEME BACKGROUNDS */
 
@@ -210,33 +280,7 @@ body {
   align-items: flex-start;
 }
 
-/* Wraps the image and aligns it to the right */
-.hero-avatar-wrapper {
-  width: 210px;              /* bigger size */
-  height: 210px;
-  border-radius: 50%;        /* circle */
-  overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.25);
-  position: absolute;
-  top: 20px;
-  right: 20px;               /* moves it to the RIGHT */
-  box-shadow:
-    0 0 15px rgba(0, 0, 0, 0.5),
-    0 0 25px rgba(99, 102, 241, 0.3);
-}
 
-/* The actual image */
-.hero-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.app-light .hero-avatar-img {
-  box-shadow:
-    0 0 0 3px rgba(226, 232, 240, 1),
-    0 16px 30px rgba(15, 23, 42, 0.18);
-}
 
 
 
@@ -322,6 +366,11 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.5);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
   position: relative;
+
+  display: flex;              /* ✅ add */
+  flex-direction: column;     /* ✅ add */
+  gap: 1.5rem; 
+  /*gap: 0.9rem; display: flex; flex-direction: column; align-items: center; text-align: center;*/
 }
 
 .app-light .hero-card {
@@ -361,7 +410,9 @@ body {
 .hero-card-text {
   font-size: 1rem;
   margin-bottom: 0.3rem;
+  padding-right: 0;   /* ✅ reset */
 }
+
 
 .hero-highlight {
   color: #a5b4fc;
