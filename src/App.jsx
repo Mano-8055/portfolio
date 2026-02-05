@@ -82,7 +82,7 @@ function Home() {
 
           <div className="hero-buttons">
             <a
-              href="/resume.pdf"
+              href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
               className="btn btn-primary"
               target="_blank"
               rel="noreferrer"
