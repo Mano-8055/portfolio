@@ -302,6 +302,15 @@ function Certifications() {
         <p className="card-desc">
           Certification IDs: TOt4sbDURj-z5dlIvsIlNQ / 1tO0Ys3ITkGJkXM3sgBKrQ
         </p>
+        <a className="card-link" href="https://drive.google.com/file/d/179mDybl6HvDQ857jLs_Usb1ZiGevphRA/view?usp=drivesdk" target="_blank" rel="noreferrer">View Certificate</a>
+      </div>
+      <div className="card card-cert">
+        <h3 className="card-title">Learn React - SCRIMBA</h3>
+        <p className="card-desc">Issued: February 04, 2026</p>
+        <p className="card-desc">
+          Certification IDs: VTLO18RT2L44
+        </p>
+        <a className="card-link" href="https://drive.google.com/file/d/1DUIXY6gv35V4ttmdETDOSv7lE3_ir5hx/view?usp=drivesdk" target="_blank" rel="noreferrer">View Certificate</a>
       </div>
     </motion.section>
   );
