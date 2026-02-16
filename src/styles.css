@@ -37,9 +37,21 @@ body {
 /* THEME BACKGROUNDS */
 
 .dark-body {
-  background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
-  color: var(--text-main-dark);
+  background:
+    radial-gradient(2px 2px at 20% 40%, #3b82f6, transparent),
+    radial-gradient(2px 2px at 70% 60%, #2563eb, transparent),
+    radial-gradient(1px 1px at 40% 80%, #60a5fa, transparent),
+    #020617;
+  animation: particles 70s ease-in-out infinite;
 }
+
+@keyframes particles {
+  0%   { background-position: 0 0; }
+  50%  { background-position: 600px 300px; }
+  100% { background-position: 0 0; }
+}
+
+
 
 .light-body {
   background: radial-gradient(circle at top, #e0f2fe 0, #f4f4ff 40%, #f9fafb 100%);
