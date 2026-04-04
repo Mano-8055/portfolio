@@ -193,7 +193,10 @@ void main() {
 
     const ro = new ResizeObserver(resize);
     ro.observe(container);
-    resize();
+    // Force immediate resize after paint so container has correct dimensions
+    requestAnimationFrame(() => {
+      resize();
+    });
 
     let targetHover = 0;
     let lastTime = 0;

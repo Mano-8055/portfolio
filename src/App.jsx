@@ -1,7 +1,7 @@
 import emailjs from "emailjs-com";
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 import Orb from "./components/Orb.tsx";
 
@@ -15,19 +15,47 @@ function App() {
   return (
     <Router>
       <div className={`app ${darkMode ? "app-dark" : "app-light"}`}>
+        {/* Orb lives at app level — never unmounts, no flicker */}
+        <div className="hero-orb-bg">
+          <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
+        </div>
         <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
         <main className="main">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/skills" element={<Skills />} />
-            <Route path="/certifications" element={<Certifications />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
+          <PageRoutes />
         </main>
         <Footer />
       </div>
     </Router>
+  );
+}
+
+/* ---------------- PAGE TRANSITION ---------------- */
+const pageVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+  exit:    { opacity: 0, y: -10, transition: { duration: 0.25, ease: "easeIn" } },
+};
+
+function PageWrap({ children }) {
+  return (
+    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+      {children}
+    </motion.div>
+  );
+}
+
+function PageRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/"              element={<PageWrap><Home /></PageWrap>} />
+        <Route path="/projects"      element={<PageWrap><Projects /></PageWrap>} />
+        <Route path="/skills"        element={<PageWrap><Skills /></PageWrap>} />
+        <Route path="/certifications" element={<PageWrap><Certifications /></PageWrap>} />
+        <Route path="/contact"       element={<PageWrap><Contact /></PageWrap>} />
+      </Routes>
+    </AnimatePresence>
   );
 }
 
@@ -66,12 +94,7 @@ function Home() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
     >
-      <div className="hero-wrapper">
-        <div className="hero-orb-bg">
-          <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
-        </div>
-
-        <div className="hero-grid">
+      <div className="hero-grid">
           <div className="hero-text">
             <p className="hero-eyebrow">Hello, I'm</p>
             <h1 className="hero-title">
@@ -125,7 +148,6 @@ function Home() {
             </div>
           </motion.div>
         </div>
-      </div>
     </motion.section>
   );
 }

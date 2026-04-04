@@ -68,12 +68,13 @@ body {
 /* ⬇️ FULL-WIDTH MAIN CONTAINER (for ALL pages) */
 .main {
   flex: 1;
-  /* take the whole viewport width with small side padding */
   width: 100vw;
   max-width: 100vw;
   padding: 1.5rem 2rem 3rem;
   margin: 0;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 
@@ -206,10 +207,6 @@ body {
   margin-top: 2.4rem;
 }
 
-.hero-wrapper {
-  position: relative;
-}
-
 .hero-orb-bg {
   position: fixed;
   inset: 0;
@@ -219,6 +216,12 @@ body {
   pointer-events: all;
   z-index: 0;
   overflow: hidden;
+  animation: orb-fadein 1.2s ease forwards;
+}
+
+@keyframes orb-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .hero-orb-bg .orb-container {
