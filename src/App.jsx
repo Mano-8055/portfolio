@@ -1,7 +1,7 @@
 import emailjs from "emailjs-com";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import "./styles.css";
 import Orb from "./components/Orb.tsx";
 
@@ -86,15 +86,68 @@ function Navbar({ darkMode, setDarkMode }) {
 }
 
 /* ---------------- HOME / HERO ---------------- */
-function Home() {
+
+// Reusable scroll-reveal wrapper
+function Reveal({ children, delay = 0, direction = "up" }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
+      x: direction === "left" ? 50 : direction === "right" ? -50 : 0,
+    },
+    visible: { opacity: 1, y: 0, x: 0 },
+  };
   return (
-    <motion.section
-      className="section home-section"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
+    <motion.div
+      ref={ref}
+      variants={variants}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="hero-grid">
+      {children}
+    </motion.div>
+  );
+}
+
+function Home() {
+  const stats = [
+    { value: "8.4", label: "CGPA" },
+    { value: "2027", label: "Graduation" },
+    { value: "10+", label: "Projects" },
+    { value: "2+", label: "Certifications" },
+  ];
+
+  const services = [
+    { icon: "⚛️", title: "Frontend Dev", desc: "Building responsive, interactive UIs with React and modern CSS." },
+    { icon: "🗄️", title: "Backend Basics", desc: "REST APIs, MySQL & MongoDB — connecting data to the interface." },
+    { icon: "🤖", title: "AI / Deep Learning", desc: "NVIDIA-certified in Deep Learning fundamentals and neural networks." },
+    { icon: "🎨", title: "UI / UX Design", desc: "Figma prototypes and design systems that feel intuitive." },
+    { icon: "🔧", title: "Dev Tools", desc: "Git, VS Code, and modern build tooling for clean workflows." },
+    { icon: "📱", title: "Responsive Design", desc: "Mobile-first layouts that work across every screen size." },
+  ];
+
+  const stack = ["React", "JavaScript", "Python", "Java", "MySQL", "MongoDB", "HTML", "CSS", "Git", "Figma", "PHP", "Node.js"];
+
+  const timeline = [
+    { year: "2022", title: "Started B.Tech + M.Tech", desc: "Joined VIT Vellore for Integrated M.Tech in Software Engineering." },
+    { year: "2025", title: "NVIDIA Certification", desc: "Completed Fundamentals of Deep Learning — NVIDIA DLI." },
+    { year: "2026", title: "React Certification", desc: "Completed Learn React course on Scrimba." },
+    { year: "2027", title: "Graduation (Target)", desc: "Completing Integrated M.Tech with strong CGPA and project portfolio." },
+  ];
+
+  return (
+    <div className="home-page">
+      {/* ── HERO ── */}
+      <motion.section
+        className="section home-section"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        <div className="hero-grid">
           <div className="hero-text">
             <p className="hero-eyebrow">Hello, I'm</p>
             <h1 className="hero-title">
@@ -105,21 +158,12 @@ function Home() {
               I'm an Integrated M.Tech Software Engineering student at VIT Vellore (CGPA 8.4, batch 2027),
               building modern web applications with React, JavaScript, and strong fundamentals in software engineering.
             </p>
-
             <div className="hero-buttons">
-              <a
-                href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
-                className="btn btn-primary"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link" className="btn btn-primary" target="_blank" rel="noreferrer">
                 Download Resume
               </a>
-              <Link to="/contact" className="btn btn-ghost">
-                Contact Me
-              </Link>
+              <Link to="/contact" className="btn btn-ghost">Contact Me</Link>
             </div>
-
             <div className="hero-info">
               <span>📍 Gudiyatham, Vellore – 632602</span>
               <span>📞 9626488199</span>
@@ -127,19 +171,12 @@ function Home() {
             </div>
           </div>
 
-          <motion.div
-            className="hero-card"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-          >
+          <motion.div className="hero-card" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
             <div>
               <p className="hero-card-heading">Currently</p>
               <p className="hero-card-text">
                 Integrated M.Tech in Software Engineering<br />
-                <span className="hero-highlight">
-                  VIT Vellore • CGPA: 8.4 • Graduation: 2027
-                </span>
+                <span className="hero-highlight">VIT Vellore • CGPA: 8.4 • Graduation: 2027</span>
               </p>
               <p className="hero-card-heading">GitHub</p>
               <a href="https://github.com/Mano-8055" target="_blank" rel="noreferrer" className="hero-link">
@@ -148,7 +185,90 @@ function Home() {
             </div>
           </motion.div>
         </div>
-    </motion.section>
+      </motion.section>
+
+      {/* ── STATS BAR ── */}
+      <Reveal delay={0.1}>
+        <div className="stats-bar">
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              className="stat-item"
+              initial={{ opacity: 0, scale: 0.7 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1, type: "spring", stiffness: 200 }}
+            >
+              <span className="stat-value">{s.value}</span>
+              <span className="stat-label">{s.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </Reveal>
+
+      {/* ── WHAT I DO ── */}
+      <section className="home-section-block">
+        <Reveal>
+          <h2 className="section-title gradient-text">What I Do</h2>
+          <p className="section-subtitle">Areas I focus on and enjoy building in.</p>
+        </Reveal>
+        <div className="services-grid">
+          {services.map((s, i) => (
+            <Reveal key={s.title} delay={i * 0.08} direction={i % 2 === 0 ? "left" : "right"}>
+              <motion.div
+                className="card service-card"
+                whileHover={{ y: -6, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <span className="service-icon">{s.icon}</span>
+                <h3 className="card-title">{s.title}</h3>
+                <p className="card-desc">{s.desc}</p>
+              </motion.div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TECH STACK MARQUEE ── */}
+      <Reveal>
+        <section className="home-section-block">
+          <h2 className="section-title gradient-text">Tech Stack</h2>
+          <div className="marquee-wrapper">
+            <motion.div
+              className="marquee-track"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            >
+              {[...stack, ...stack].map((tech, i) => (
+                <span key={i} className="marquee-chip">{tech}</span>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* ── TIMELINE ── */}
+      <section className="home-section-block">
+        <Reveal>
+          <h2 className="section-title gradient-text">Journey</h2>
+          <p className="section-subtitle">Key milestones along the way.</p>
+        </Reveal>
+        <div className="timeline">
+          {timeline.map((item, i) => (
+            <Reveal key={item.year} delay={i * 0.12} direction={i % 2 === 0 ? "left" : "right"}>
+              <div className={`timeline-item ${i % 2 === 0 ? "tl-left" : "tl-right"}`}>
+                <div className="timeline-dot" />
+                <div className="card timeline-card">
+                  <span className="timeline-year">{item.year}</span>
+                  <h3 className="card-title">{item.title}</h3>
+                  <p className="card-desc">{item.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
 
