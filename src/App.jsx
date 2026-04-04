@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./styles.css";
-
-
-
+import Orb from "./components/Orb.tsx";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -68,73 +66,71 @@ function Home() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
     >
-      <div className="hero-grid">
-        <div className="hero-text">
-          <p className="hero-eyebrow">Hello, I’m</p>
-          <h1 className="hero-title">
-            Manobala<span className="hero-title-accent"> S</span>
-          </h1>
-          <h2 className="hero-subtitle">Aspiring Software Engineer</h2>
-          <p className="hero-description">
-            I’m an Integrated M.Tech Software Engineering student at VIT Vellore (CGPA 8.4, batch 2027),
-            building modern web applications with React, JavaScript, and strong fundamentals in software engineering.
-          </p>
-
-          <div className="hero-buttons">
-            <a
-              href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
-              className="btn btn-primary"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Download Resume
-            </a>
-            <Link to="/contact" className="btn btn-ghost">
-              Contact Me
-            </Link>
-          </div>
-
-          <div className="hero-info">
-            <span>📍 Gudiyatham, Vellore – 632602</span>
-            <span>📞 9626488199</span>
-            <span>📧 shankarmanogym@gmail.com</span>
-          </div>
+      <div className="hero-wrapper">
+        <div className="hero-orb-bg">
+          <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
         </div>
 
-        <motion.div
-  className="hero-card"
-  initial={{ opacity: 0, x: 40 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.7 }}
->
-  <div>
-    <p className="hero-card-heading">Currently</p>
-    <p className="hero-card-text">
-      Integrated M.Tech in Software Engineering<br />
-      <span className="hero-highlight">
-        VIT Vellore • CGPA: 8.4 • Graduation: 2027
-      </span>
-    </p>
+        <div className="hero-grid">
+          <div className="hero-text">
+            <p className="hero-eyebrow">Hello, I'm</p>
+            <h1 className="hero-title">
+              Manobala<span className="hero-title-accent"> S</span>
+            </h1>
+            <h2 className="hero-subtitle">Aspiring Software Engineer</h2>
+            <p className="hero-description">
+              I'm an Integrated M.Tech Software Engineering student at VIT Vellore (CGPA 8.4, batch 2027),
+              building modern web applications with React, JavaScript, and strong fundamentals in software engineering.
+            </p>
 
-    <p className="hero-card-heading">GitHub</p>
-    <a
-      href="https://github.com/Mano-8055"
-      target="_blank"
-      rel="noreferrer"
-      className="hero-link"
-    >
-      github.com/Mano-8055
-    </a>
-  </div>
-</motion.div>
+            <div className="hero-buttons">
+              <a
+                href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
+                className="btn btn-primary"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Download Resume
+              </a>
+              <Link to="/contact" className="btn btn-ghost">
+                Contact Me
+              </Link>
+            </div>
 
+            <div className="hero-info">
+              <span>📍 Gudiyatham, Vellore – 632602</span>
+              <span>📞 9626488199</span>
+              <span>📧 shankarmanogym@gmail.com</span>
+            </div>
+          </div>
+
+          <motion.div
+            className="hero-card"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <div>
+              <p className="hero-card-heading">Currently</p>
+              <p className="hero-card-text">
+                Integrated M.Tech in Software Engineering<br />
+                <span className="hero-highlight">
+                  VIT Vellore • CGPA: 8.4 • Graduation: 2027
+                </span>
+              </p>
+              <p className="hero-card-heading">GitHub</p>
+              <a href="https://github.com/Mano-8055" target="_blank" rel="noreferrer" className="hero-link">
+                github.com/Mano-8055
+              </a>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </motion.section>
   );
 }
 
 /* ---------------- PROJECTS ---------------- */
-/* ---------------- PROJECTS (auto from GitHub API) ---------------- */
 function Projects() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,98 +141,44 @@ function Projects() {
       try {
         setLoading(true);
         setError("");
-
         const res = await fetch(
           "https://api.github.com/users/Mano-8055/repos?sort=created&direction=desc"
         );
-
-        if (!res.ok) {
-          throw new Error(`GitHub API error: ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
         const data = await res.json();
-
-        // Filter + shape data
-        const cleaned = data
-          .filter((repo) => !repo.fork)        // ignore forks
-          .filter((repo) => !repo.archived)    // ignore archived
-          .slice(0, 9);                        // show latest 9
-
+        const cleaned = data.filter(r => !r.fork).filter(r => !r.archived).slice(0, 9);
         setRepos(cleaned);
       } catch (err) {
-        console.error("Failed to fetch repos:", err);
         setError("Unable to load projects from GitHub right now.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchRepos();
   }, []);
 
   return (
-    <motion.section
-      className="section"
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.section className="section" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
       <h2 className="section-title gradient-text">Projects</h2>
-      <p className="section-subtitle">
-        Latest repositories from my GitHub. New projects you see here are pulled automatically.
-      </p>
-
+      <p className="section-subtitle">Latest repositories from my GitHub. New projects you see here are pulled automatically.</p>
       {loading && <p style={{ marginTop: "1rem" }}>Loading projects...</p>}
       {error && <p style={{ marginTop: "1rem", color: "#f97373" }}>{error}</p>}
-
       {!loading && !error && (
         <div className="cards-grid">
           {repos.map((repo, index) => (
-            <motion.article
-              key={repo.id}
-              className="card card-project"
-              whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.article key={repo.id} className="card card-project" whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }} transition={{ duration: 0.2 }}>
               <div className={`card-ribbon ribbon-${index % 3}`}></div>
-
               <h3 className="card-title">{repo.name}</h3>
-
-              <p className="card-tech">
-                {repo.language || "Multiple technologies"}
-              </p>
-
-              <p className="card-desc">
-                {repo.description ||
-                  "A GitHub project from my portfolio. Check the repository for more details."}
-              </p>
-
+              <p className="card-tech">{repo.language || "Multiple technologies"}</p>
+              <p className="card-desc">{repo.description || "A GitHub project from my portfolio."}</p>
               <ul className="card-list">
                 <li>⭐ Stars: {repo.stargazers_count}</li>
                 <li>🍴 Forks: {repo.forks_count}</li>
                 <li>📅 Created: {new Date(repo.created_at).toLocaleDateString()}</li>
               </ul>
-
               <div className="card-buttons">
-                <a
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-outline"
-                >
-                  View on GitHub
-                </a>
-
-                {repo.homepage && (
-                  <a
-                    href={repo.homepage}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-secondary"
-                  >
-                    Live Demo
-                  </a>
-                )}
+                <a href={repo.html_url} target="_blank" rel="noreferrer" className="btn btn-outline">View on GitHub</a>
+                {repo.homepage && <a href={repo.homepage} target="_blank" rel="noreferrer" className="btn btn-secondary">Live Demo</a>}
               </div>
             </motion.article>
           ))}
@@ -245,7 +187,6 @@ function Projects() {
     </motion.section>
   );
 }
-
 
 /* ---------------- SKILLS ---------------- */
 function Skills() {
@@ -256,27 +197,13 @@ function Skills() {
     { category: "Tools", items: "Git, VS Code, Figma" },
     { category: "Soft Skills", items: "Communication, Teamwork" }
   ];
-
   return (
-    <motion.section
-      className="section"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
+    <motion.section className="section" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
       <h2 className="section-title gradient-text">Skills</h2>
-      <p className="section-subtitle">
-        A mix of technical and interpersonal skills I use to build and ship software.
-      </p>
-
+      <p className="section-subtitle">A mix of technical and interpersonal skills I use to build and ship software.</p>
       <div className="skills-grid">
-        {skills.map((s, idx) => (
-          <motion.div
-            key={s.category}
-            className="card card-skill"
-            whileHover={{ scale: 1.03 }}
-            transition={{ duration: 0.15 }}
-          >
+        {skills.map(s => (
+          <motion.div key={s.category} className="card card-skill" whileHover={{ scale: 1.03 }} transition={{ duration: 0.15 }}>
             <h3 className="card-title">{s.category}</h3>
             <p className="skill-items">{s.items}</p>
           </motion.div>
@@ -289,93 +216,48 @@ function Skills() {
 /* ---------------- CERTIFICATIONS ---------------- */
 function Certifications() {
   return (
-    <motion.section
-      className="section"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <motion.section className="section" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
       <h2 className="section-title gradient-text">Certifications</h2>
       <div className="card card-cert">
         <h3 className="card-title">Fundamentals of Deep Learning – NVIDIA</h3>
         <p className="card-desc">Issued: September 22, 2025</p>
-        <p className="card-desc">
-          Certification IDs: TOt4sbDURj-z5dlIvsIlNQ / 1tO0Ys3ITkGJkXM3sgBKrQ
-        </p>
+        <p className="card-desc">Certification IDs: TOt4sbDURj-z5dlIvsIlNQ / 1tO0Ys3ITkGJkXM3sgBKrQ</p>
         <a className="card-link" href="https://drive.google.com/file/d/179mDybl6HvDQ857jLs_Usb1ZiGevphRA/view?usp=drivesdk" target="_blank" rel="noreferrer">View Certificate</a>
       </div>
       <div className="card card-cert">
         <h3 className="card-title">Learn React - SCRIMBA</h3>
         <p className="card-desc">Issued: February 04, 2026</p>
-        <p className="card-desc">
-          Certification IDs: VTLO18RT2L44
-        </p>
+        <p className="card-desc">Certification IDs: VTLO18RT2L44</p>
         <a className="card-link" href="https://drive.google.com/file/d/1DUIXY6gv35V4ttmdETDOSv7lE3_ir5hx/view?usp=drivesdk" target="_blank" rel="noreferrer">View Certificate</a>
       </div>
     </motion.section>
   );
 }
 
-/* ---------------- CONTACT (EmailJS-ready) ---------------- */
+/* ---------------- CONTACT ---------------- */
 function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    console.log("Form submitted");
-
-    emailjs
-      .sendForm(
-        "service_jh1mgvn",    // 👈 Service ID (string)
-        "template_xy8ra8e",   // 👈 Template ID (string)
-        e.target,
-        "crw0OW6hsz2xKetZA"   // 👈 Public key (string)
-      )
-      .then(
-        (result) => {
-          console.log("EmailJS success:", result.text);
-          alert("Message sent successfully! ✅");
-          e.target.reset();
-        },
-        (error) => {
-          console.error("EmailJS error:", error);
-          alert("Something went wrong. Please try again ❌");
-        }
-      );
+    emailjs.sendForm("service_jh1mgvn", "template_xy8ra8e", e.target, "crw0OW6hsz2xKetZA")
+      .then(() => { alert("Message sent successfully! ✅"); e.target.reset(); },
+            () => { alert("Something went wrong. Please try again ❌"); });
   };
 
-
   return (
-    <motion.section
-      className="section"
-      id="contact-cta"
-      initial={{ opacity: 0, y: 25 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.section className="section" id="contact-cta" initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <h2 className="section-title gradient-text">Contact</h2>
-      <p className="section-subtitle">
-        Got an opportunity, idea, or collaboration in mind? Drop a message.
-      </p>
-
+      <p className="section-subtitle">Got an opportunity, idea, or collaboration in mind? Drop a message.</p>
       <div className="contact-grid">
         <div className="contact-card">
-          <h3 className="card-title">Let’s Talk</h3>
-          <p className="card-desc">
-            I’m open to software engineering internships, freelance web projects, and
-            collaborations on interesting tech ideas.
-          </p>
+          <h3 className="card-title">Let's Talk</h3>
+          <p className="card-desc">I'm open to software engineering internships, freelance web projects, and collaborations on interesting tech ideas.</p>
           <ul className="contact-info">
             <li>📧 <a href="mailto:shankarmanogym@gmail.com">shankarmanogym@gmail.com</a></li>
             <li>📞 9626488199</li>
             <li>📍 Gudiyatham, Vellore – 632602</li>
-            <li>
-              🐙 <a href="https://github.com/Mano-8055" target="_blank" rel="noreferrer">
-                github.com/Mano-8055
-              </a>
-            </li>
+            <li>🐙 <a href="https://github.com/Mano-8055" target="_blank" rel="noreferrer">github.com/Mano-8055</a></li>
           </ul>
         </div>
-
         <form className="contact-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Name</label>
@@ -389,9 +271,7 @@ function Contact() {
             <label>Message</label>
             <textarea name="message" rows="4" placeholder="Type your message..." required />
           </div>
-          <button type="submit" className="btn btn-primary btn-full">
-            Send Message
-          </button>
+          <button type="submit" className="btn btn-primary btn-full">Send Message</button>
         </form>
       </div>
     </motion.section>
