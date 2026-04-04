@@ -61,27 +61,186 @@ function PageRoutes() {
 
 /* ---------------- NAVBAR ---------------- */
 function Navbar({ darkMode, setDarkMode }) {
+  const [open, setOpen] = useState(false);
+  const links = [
+    { to: "/", label: "Home" },
+    { to: "/projects", label: "Projects" },
+    { to: "/skills", label: "Skills" },
+    { to: "/certifications", label: "Certifications" },
+    { to: "/contact", label: "Contact" },
+  ];
+
+  // Close drawer on route change
+  const handleNav = () => setOpen(false);
+
   return (
-    <header className="navbar">
-      <div className="navbar-left">
-        <span className="logo">Manobala S</span>
-        <span className="role-tag">Software Engineer (Aspiring)</span>
+    <>
+      <header className="navbar">
+        <div className="navbar-left">
+          <span className="logo">Manobala S</span>
+          <span className="role-tag">Software Engineer (Aspiring)</span>
+        </div>
+
+        {/* Desktop links */}
+        <nav className="navbar-links desktop-nav">
+          {links.map(l => (
+            <NavLink key={l.to} to={l.to} className="nav-link">{l.label}</NavLink>
+          ))}
+        </nav>
+
+        <div className="navbar-actions">
+          <button className="theme-toggle" onClick={() => setDarkMode(p => !p)} aria-label="Toggle theme">
+            {darkMode ? "☀️" : "🌙"}
+          </button>
+          {/* Hamburger — mobile only */}
+          <button
+            className="hamburger"
+            onClick={() => setOpen(p => !p)}
+            aria-label="Toggle menu"
+            aria-expanded={open}
+          >
+            <motion.span animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
+            <motion.span animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }} transition={{ duration: 0.2 }} />
+            <motion.span animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setOpen(false)}
+            />
+            {/* Drawer */}
+            <motion.nav
+              className="mobile-drawer"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            >
+              <div className="drawer-header">
+                <span className="logo">Manobala S</span>
+                <button className="drawer-close" onClick={() => setOpen(false)} aria-label="Close menu">✕</button>
+              </div>
+              <div className="drawer-links">
+                {links.map((l, i) => (
+                  <motion.div
+                    key={l.to}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.07, duration: 0.3 }}
+                  >
+                    <NavLink to={l.to} className="drawer-link" onClick={handleNav}>
+                      {l.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="drawer-footer">
+                <button className="theme-toggle" onClick={() => setDarkMode(p => !p)} aria-label="Toggle theme">
+                  {darkMode ? "☀️ Light" : "🌙 Dark"}
+                </button>
+              </div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/* ---------------- JOURNEY SECTION ---------------- */
+function JourneySection({ timeline }) {
+  const [active, setActive] = useState(0);
+  const trackRef = useRef(null);
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  // Auto-advance on scroll within section
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const progress = scrollLeft / (scrollWidth - clientWidth);
+      const idx = Math.round(progress * (timeline.length - 1));
+      setActive(idx);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [timeline.length]);
+
+  const scrollTo = (i) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.children[i];
+    if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    setActive(i);
+  };
+
+  return (
+    <section className="home-section-block journey-section" ref={sectionRef}>
+      <Reveal>
+        <h2 className="section-title gradient-text">Journey</h2>
+        <p className="section-subtitle">Milestones that shaped who I am.</p>
+      </Reveal>
+
+      {/* Progress dots */}
+      <div className="journey-dots">
+        {timeline.map((_, i) => (
+          <button key={i} className={`journey-dot ${i === active ? "jd-active" : ""}`} onClick={() => scrollTo(i)} aria-label={`Go to milestone ${i + 1}`} />
+        ))}
       </div>
-      <nav className="navbar-links">
-        <NavLink to="/" className="nav-link">Home</NavLink>
-        <NavLink to="/projects" className="nav-link">Projects</NavLink>
-        <NavLink to="/skills" className="nav-link">Skills</NavLink>
-        <NavLink to="/certifications" className="nav-link">Certifications</NavLink>
-        <NavLink to="/contact" className="nav-link">Contact</NavLink>
-      </nav>
-      <button
-        className="theme-toggle"
-        onClick={() => setDarkMode(prev => !prev)}
-        aria-label="Toggle theme"
-      >
-        {darkMode ? "☀️" : "🌙"}
-      </button>
-    </header>
+
+      {/* Horizontal scroll track */}
+      <div className="journey-track" ref={trackRef}>
+        {timeline.map((item, i) => (
+          <motion.div
+            key={item.year}
+            className={`journey-card card ${i === active ? "jc-active" : ""}`}
+            initial={{ opacity: 0, y: 50 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: i * 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            onClick={() => scrollTo(i)}
+            whileHover={{ scale: i === active ? 1.02 : 1.04 }}
+          >
+            {/* Glow blob */}
+            <div className="jc-glow" />
+
+            <div className="jc-number">{String(i + 1).padStart(2, "0")}</div>
+            <div className="jc-year">{item.year}</div>
+            <h3 className="jc-title">{item.title}</h3>
+            <p className="jc-desc">{item.desc}</p>
+
+            {/* Bottom accent line */}
+            <motion.div
+              className="jc-line"
+              initial={{ scaleX: 0 }}
+              animate={i === active ? { scaleX: 1 } : { scaleX: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Progress bar */}
+      <div className="journey-progress-bar">
+        <motion.div
+          className="journey-progress-fill"
+          animate={{ width: `${(active / (timeline.length - 1)) * 100}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -247,27 +406,8 @@ function Home() {
         </section>
       </Reveal>
 
-      {/* ── TIMELINE ── */}
-      <section className="home-section-block">
-        <Reveal>
-          <h2 className="section-title gradient-text">Journey</h2>
-          <p className="section-subtitle">Key milestones along the way.</p>
-        </Reveal>
-        <div className="timeline">
-          {timeline.map((item, i) => (
-            <Reveal key={item.year} delay={i * 0.12} direction={i % 2 === 0 ? "left" : "right"}>
-              <div className={`timeline-item ${i % 2 === 0 ? "tl-left" : "tl-right"}`}>
-                <div className="timeline-dot" />
-                <div className="card timeline-card">
-                  <span className="timeline-year">{item.year}</span>
-                  <h3 className="card-title">{item.title}</h3>
-                  <p className="card-desc">{item.desc}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      {/* ── JOURNEY ── */}
+      <JourneySection timeline={timeline} />
     </div>
   );
 }
