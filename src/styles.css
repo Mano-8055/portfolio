@@ -333,6 +333,7 @@ body {
   z-index: 0;
   overflow: hidden;
   animation: orb-fadein 1.4s ease forwards;
+  opacity: 0;
 }
 
 @keyframes orb-fadein {
@@ -687,11 +688,12 @@ body {
   z-index: 0;
   overflow: hidden;
   animation: orb-fadein 1.4s ease forwards;
+  opacity: 0.45;
 }
 
 @keyframes orb-fadein {
   from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.45; transform: scale(1); }
 }
 
 .hero-orb-bg .orb-container { width: 100vw; height: 100vh; }
@@ -924,7 +926,8 @@ body {
   font-size: 3rem;
   font-weight: 900;
   line-height: 1;
-  background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(236,72,153,0.3));
+  /* background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(236,72,153,0.3)); */
+  background: linear-gradient(135deg, #6366f1, #ec4899);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
