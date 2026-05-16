@@ -1,11 +1,13 @@
 import emailjs from "emailjs-com";
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 import "./styles.css";
 import Orb from "./components/Orb.tsx";
+import { useLenis, FloatingBlobs, TiltCard } from "./components/ScrollEffects.jsx";
 
 function App() {
+  useLenis();
   const [loaded, setLoaded]   = useState(false);
   const [darkMode, setDarkMode] = useState(true);
 
@@ -26,6 +28,8 @@ function App() {
         >
           <Router>
             <div className={`app ${darkMode ? "app-dark" : "app-light"}`}>
+              <div className="bg-grid" aria-hidden="true" />
+              <FloatingBlobs />
               <div className="hero-orb-bg">
                 <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
               </div>
@@ -172,6 +176,10 @@ function PageRoutes() {
 /* ---------------- NAVBAR ---------------- */
 function Navbar({ darkMode, setDarkMode }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 70));
+
   const links = [
     { to: "/", label: "Home" },
     { to: "/projects", label: "Projects" },
@@ -185,7 +193,15 @@ function Navbar({ darkMode, setDarkMode }) {
 
   return (
     <>
-      <header className="navbar">
+      <motion.header
+        className={`navbar${scrolled ? " navbar-scrolled" : ""}`}
+        animate={scrolled ? {
+          boxShadow: "0 4px 40px rgba(0,0,0,0.7), 0 0 80px rgba(99,102,241,0.07), inset 0 -1px 0 rgba(99,102,241,0.2)",
+        } : {
+          boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)",
+        }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+      >
         <div className="navbar-left">
           <span className="logo">Manobala S</span>
           <span className="role-tag">Software Engineer (Aspiring)</span>
@@ -212,7 +228,7 @@ function Navbar({ darkMode, setDarkMode }) {
             <motion.span animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
           </button>
         </div>
-      </header>
+      </motion.header>
 
       <AnimatePresence>
         {open && (
@@ -266,14 +282,15 @@ function Navbar({ darkMode, setDarkMode }) {
 /* ---------------- SCROLL REVEAL WRAPPERS ---------------- */
 function Reveal({ children, delay = 0, direction = "up" }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-70px" });
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   const variants = {
     hidden: {
       opacity: 0,
-      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
-      x: direction === "left" ? 50 : direction === "right" ? -50 : 0,
+      filter: "blur(3px)",
+      y: direction === "up" ? 48 : direction === "down" ? -48 : 0,
+      x: direction === "left" ? 55 : direction === "right" ? -55 : 0,
     },
-    visible: { opacity: 1, y: 0, x: 0 },
+    visible: { opacity: 1, filter: "blur(0px)", y: 0, x: 0 },
   };
   return (
     <motion.div
@@ -281,7 +298,7 @@ function Reveal({ children, delay = 0, direction = "up" }) {
       variants={variants}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.72, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -290,14 +307,14 @@ function Reveal({ children, delay = 0, direction = "up" }) {
 
 function Reveal3D({ children, delay = 0 }) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const inView = useInView(ref, { once: true, margin: "-55px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 60, rotateX: 14, scale: 0.97 }}
-      animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
-      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
-      style={{ transformPerspective: 1000, transformOrigin: "50% 0%" }}
+      initial={{ opacity: 0, y: 72, rotateX: 22, scale: 0.93, filter: "blur(4px)" }}
+      animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1, filter: "blur(0px)" } : {}}
+      transition={{ duration: 1.05, delay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ transformPerspective: 1200, transformOrigin: "50% 0%" }}
     >
       {children}
     </motion.div>
@@ -350,11 +367,12 @@ function JourneySection({ timeline }) {
           <motion.div
             key={item.year}
             className={`journey-card card ${i === active ? "jc-active" : ""}`}
-            initial={{ opacity: 0, y: 50 }}
-            animate={inView ? { opacity: i === active ? 1 : 0.55, y: 0 } : {}}
-            transition={{ delay: i * 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 50, rotateY: -8 }}
+            animate={inView ? { opacity: i === active ? 1 : 0.55, y: 0, rotateY: 0 } : {}}
+            transition={{ delay: i * 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => scrollTo(i)}
-            whileHover={{ scale: 1.03, y: -4 }}
+            whileHover={{ scale: 1.04, y: -6, rotateY: 2 }}
+            style={{ transformPerspective: 900 }}
           >
             <div className="jc-glow" />
             <div className="jc-number">{String(i + 1).padStart(2, "0")}</div>
@@ -391,10 +409,12 @@ function Home() {
   const heroCardY    = useTransform(scrollY, [0, 600], [0, -60]);
   const heroOpacity  = useTransform(scrollY, [0, 420], [1, 0]);
   const heroScale    = useTransform(scrollY, [0, 450], [1, 0.95]);
+  const heroRotateX  = useTransform(scrollY, [0, 520], [0, 9]);
 
   const smoothTextY  = useSpring(heroTextY,  { stiffness: 75, damping: 22 });
   const smoothCardY  = useSpring(heroCardY,  { stiffness: 75, damping: 22 });
   const smoothScale  = useSpring(heroScale,  { stiffness: 75, damping: 22 });
+  const smoothRotateX = useSpring(heroRotateX, { stiffness: 60, damping: 20 });
 
   const stats = [
     { value: "8.4", label: "CGPA" },
@@ -433,11 +453,11 @@ function Home() {
       >
         <motion.div
           className="hero-parallax-layer"
-          style={{ opacity: heroOpacity, scale: smoothScale }}
+          style={{ opacity: heroOpacity, scale: smoothScale, perspective: "1300px" }}
         >
           <div className="hero-grid">
 
-            <motion.div className="hero-text" style={{ y: smoothTextY }}>
+            <motion.div className="hero-text" style={{ y: smoothTextY, rotateX: smoothRotateX, transformOrigin: "50% 100%" }}>
               <motion.p
                 className="hero-eyebrow"
                 initial={{ opacity: 0, letterSpacing: "0.5em" }}
@@ -494,8 +514,9 @@ function Home() {
               </motion.div>
             </motion.div>
 
-            <motion.div
+            <TiltCard
               className="hero-card"
+              intensity={7}
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.75, delay: 0.3 }}
@@ -512,7 +533,7 @@ function Home() {
                   github.com/Mano-8055
                 </a>
               </div>
-            </motion.div>
+            </TiltCard>
 
           </div>
         </motion.div>
@@ -546,16 +567,11 @@ function Home() {
         <div className="services-grid">
           {services.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.07} direction={i % 2 === 0 ? "left" : "right"}>
-              <motion.div
-                className="card service-card"
-                whileHover={{ y: -8, scale: 1.03, rotateY: 2 }}
-                transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                style={{ transformPerspective: 800 }}
-              >
+              <TiltCard className="card service-card" intensity={9}>
                 <span className="service-icon">{s.icon}</span>
                 <h3 className="card-title">{s.title}</h3>
                 <p className="card-desc">{s.desc}</p>
-              </motion.div>
+              </TiltCard>
             </Reveal>
           ))}
         </div>
@@ -623,22 +639,15 @@ function Projects() {
         <div className="cards-grid">
           {repos.map((repo, index) => (
             <Reveal key={repo.id} delay={index * 0.06} direction={index % 2 === 0 ? "left" : "right"}>
-              <motion.article
-                className="card card-project"
-                whileHover={{ y: -6, scale: 1.015, rotateY: 1.5 }}
-                transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                style={{ transformPerspective: 900 }}
-              >
+              <TiltCard className="card card-project" intensity={6}>
                 <div className={`card-ribbon ribbon-${index % 3}`} />
 
-                {/* grows to fill card, pushes footer down */}
                 <div className="proj-body">
                   <p className="card-tech">{repo.language || "Multiple technologies"}</p>
                   <h3 className="card-title">{repo.name}</h3>
                   <p className="card-desc">{repo.description || "A GitHub project from my portfolio."}</p>
                 </div>
 
-                {/* always pinned to bottom */}
                 <div className="proj-footer">
                   <ul className="card-list">
                     <li>⭐ {repo.stargazers_count} stars</li>
@@ -652,7 +661,7 @@ function Projects() {
                     )}
                   </div>
                 </div>
-              </motion.article>
+              </TiltCard>
             </Reveal>
           ))}
         </div>
@@ -732,17 +741,12 @@ function UIUXDesign() {
           <div className="process-grid">
             {designProcess.map((p, i) => (
               <Reveal key={p.step} delay={i * 0.1}>
-                <motion.div
-                  className="card process-card"
-                  whileHover={{ y: -8, scale: 1.03, rotateY: 2 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                  style={{ transformPerspective: 800 }}
-                >
+                <TiltCard className="card process-card" intensity={8}>
                   <div className="process-step-num">{p.step}</div>
                   <span className="service-icon">{p.icon}</span>
                   <h4 className="card-title">{p.title}</h4>
                   <p className="card-desc">{p.desc}</p>
-                </motion.div>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -813,16 +817,11 @@ function UIUXDesign() {
           <div className="principles-grid">
             {principles.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.08}>
-                <motion.div
-                  className="card principle-card"
-                  whileHover={{ y: -6, scale: 1.02, rotateY: 2 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 20 }}
-                  style={{ transformPerspective: 800 }}
-                >
+                <TiltCard className="card principle-card" intensity={8}>
                   <span className="principle-icon">{p.icon}</span>
                   <h4 className="card-title">{p.title}</h4>
                   <p className="card-desc">{p.desc}</p>
-                </motion.div>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -849,15 +848,10 @@ function Skills() {
       <div className="skills-grid">
         {skills.map((s, i) => (
           <Reveal key={s.category} delay={i * 0.07}>
-            <motion.div
-              className="card card-skill"
-              whileHover={{ scale: 1.03, y: -4, rotateY: 2 }}
-              transition={{ type: "spring", stiffness: 280, damping: 20 }}
-              style={{ transformPerspective: 800 }}
-            >
+            <TiltCard className="card card-skill" intensity={8}>
               <h3 className="card-title">{s.category}</h3>
               <p className="skill-items">{s.items}</p>
-            </motion.div>
+            </TiltCard>
           </Reveal>
         ))}
       </div>
