@@ -195,15 +195,22 @@ function Navbar({ darkMode, setDarkMode }) {
     <>
       <motion.header
         className={`navbar${scrolled ? " navbar-scrolled" : ""}`}
+        initial={false}
         animate={scrolled ? {
-          boxShadow: "0 4px 40px rgba(0,0,0,0.7), 0 0 80px rgba(99,102,241,0.07), inset 0 -1px 0 rgba(99,102,241,0.2)",
+          y: 0,
         } : {
-          boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)",
+          y: 0,
         }}
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
         <div className="navbar-left">
-          <span className="logo">Manobala S</span>
+          <motion.span
+            className="logo"
+            whileHover={{ scale: 1.04 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            Manobala S
+          </motion.span>
           <span className="role-tag">Software Engineer (Aspiring)</span>
         </div>
 
