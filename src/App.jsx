@@ -1,7 +1,7 @@
 import emailjs from "emailjs-com";
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
+import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from "framer-motion";
 import "./styles.css";
 import profilePhoto from "./assets/manobala.jpg";
 import Orb from "./components/Orb.tsx";
@@ -590,19 +590,6 @@ const PROJECT_ACCENTS = [
 const HERO_ROLES = ["Software Engineer", "React Developer", "UI/UX Designer", "ML Enthusiast"];
 
 function Home() {
-  const { scrollY } = useScroll();
-
-  // Parallax depth layers for hero
-  const heroTextY    = useTransform(scrollY, [0, 600], [0, -130]);
-  const heroCardY    = useTransform(scrollY, [0, 600], [0, -60]);
-  const heroOpacity  = useTransform(scrollY, [0, 420], [1, 0]);
-  const heroScale    = useTransform(scrollY, [0, 450], [1, 0.95]);
-  const heroRotateX  = useTransform(scrollY, [0, 520], [0, 9]);
-
-  const smoothTextY  = useSpring(heroTextY,  { stiffness: 75, damping: 22 });
-  const smoothCardY  = useSpring(heroCardY,  { stiffness: 75, damping: 22 });
-  const smoothScale  = useSpring(heroScale,  { stiffness: 75, damping: 22 });
-  const smoothRotateX = useSpring(heroRotateX, { stiffness: 60, damping: 20 });
 
   const [roleIdx, setRoleIdx] = useState(0);
   useEffect(() => {
@@ -675,14 +662,10 @@ function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
-        <motion.div
-          className="hero-parallax-layer"
-          style={{ opacity: heroOpacity, scale: smoothScale, perspective: "1300px" }}
-        >
-          <div className="hero-grid">
+        <div className="hero-grid">
 
             {/* ── LEFT: text column ── */}
-            <motion.div className="hero-text" style={{ y: smoothTextY, rotateX: smoothRotateX, transformOrigin: "50% 100%" }}>
+            <div className="hero-text">
 
               {/* Availability badge */}
               <motion.div className="hero-badge" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.55, delay: 0.05 }}>
@@ -739,7 +722,7 @@ function Home() {
                 <span className="hero-chip">✉ shankarmanogym@gmail.com</span>
               </motion.div>
 
-            </motion.div>
+            </div>
 
             {/* ── RIGHT: profile card ── */}
             <TiltCard
@@ -748,7 +731,6 @@ function Home() {
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.75, delay: 0.28 }}
-              style={{ y: smoothCardY }}
             >
               {/* Top gradient accent */}
               <div className="hero-card-accent-bar" />
@@ -795,12 +777,11 @@ function Home() {
               </a>
             </TiltCard>
 
-          </div>
-        </motion.div>
+        </div>
       </motion.section>
 
       {/* ── STATS BAR ── */}
-      <ParallaxBox offset={35}>
+      <div>
         <motion.div
           className="stats-bar"
           initial={{ opacity: 0, y: 32 }}
@@ -825,7 +806,7 @@ function Home() {
             </React.Fragment>
           ))}
         </motion.div>
-      </ParallaxBox>
+      </div>
 
       {/* ── WHAT I DO ── */}
       <section className="home-section-block parallax-section">

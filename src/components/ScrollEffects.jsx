@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionTemplate } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 /* ── Lenis Smooth Inertia Scroll ── */
 export function useLenis() {
@@ -51,26 +51,12 @@ export function FloatingBlobs() {
   );
 }
 
-/* ── Scroll-Reactive Background — scroll-only, no mousemove overhead ── */
+/* ── Background — pure CSS, zero JS scroll overhead ── */
 export function ScrollBackground() {
-  const { scrollYProgress } = useScroll();
-  const cfg = { stiffness: 14, damping: 22 }; // looser spring = fewer recalculations
-
-  const b1x = useSpring(useTransform(scrollYProgress, [0, 1], ["14%", "62%"]), cfg);
-  const b1y = useSpring(useTransform(scrollYProgress, [0, 1], ["12%", "82%"]), cfg);
-  const b2x = useSpring(useTransform(scrollYProgress, [0, 1], ["78%", "22%"]), cfg);
-  const b2y = useSpring(useTransform(scrollYProgress, [0, 1], ["16%", "70%"]), cfg);
-  const b3x = useSpring(useTransform(scrollYProgress, [0, 1], ["50%", "30%"]), cfg);
-  const b3y = useSpring(useTransform(scrollYProgress, [0, 1], ["90%", "35%"]), cfg);
-  const hY  = useSpring(useTransform(scrollYProgress, [0, 1], ["18%", "72%"]), cfg);
-
-  const blobsBg  = useMotionTemplate`radial-gradient(ellipse 58% 50% at ${b1x} ${b1y}, rgba(99,102,241,0.22) 0%, transparent 65%), radial-gradient(ellipse 52% 58% at ${b2x} ${b2y}, rgba(236,72,153,0.17) 0%, transparent 65%), radial-gradient(ellipse 62% 44% at ${b3x} ${b3y}, rgba(34,197,94,0.13) 0%, transparent 65%)`;
-  const horizonBg = useMotionTemplate`radial-gradient(ellipse 100% 28% at 50% ${hY}, rgba(120,119,198,0.09) 0%, transparent 60%)`;
-
   return (
     <div className="scroll-responsive-bg" aria-hidden="true">
-      <motion.div className="srb-blobs"   style={{ background: blobsBg }} />
-      <motion.div className="srb-horizon" style={{ background: horizonBg }} />
+      <div className="srb-blobs" />
+      <div className="srb-horizon" />
     </div>
   );
 }
