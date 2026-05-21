@@ -428,12 +428,10 @@ function JourneySection({ timeline }) {
     <section className="home-section-block journey-section parallax-section" ref={sectionRef}>
       <div className="parallax-bg-orb orb-green" aria-hidden="true" />
 
-      <ParallaxBox offset={20}>
-        <Reveal3D>
-          <h2 className="section-title gradient-text">Journey</h2>
-          <p className="section-subtitle">Milestones that shaped who I am.</p>
-        </Reveal3D>
-      </ParallaxBox>
+      <Reveal3D>
+        <h2 className="section-title gradient-text">Journey</h2>
+        <p className="section-subtitle">Milestones that shaped who I am.</p>
+      </Reveal3D>
 
       <div className="jstage">
 
@@ -832,28 +830,24 @@ function Home() {
       {/* ── WHAT I DO ── */}
       <section className="home-section-block parallax-section">
         <div className="parallax-bg-orb orb-indigo" aria-hidden="true" />
-        <ParallaxBox offset={28}>
-          <Reveal3D>
-            <h2 className="section-title gradient-text">What I Do</h2>
-            <p className="section-subtitle">Areas I focus on and enjoy building in.</p>
-          </Reveal3D>
-        </ParallaxBox>
+        <Reveal3D>
+          <h2 className="section-title gradient-text">What I Do</h2>
+          <p className="section-subtitle">Areas I focus on and enjoy building in.</p>
+        </Reveal3D>
         <div className="services-grid">
           {services.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.06} direction={i % 2 === 0 ? "left" : "right"}>
-              <ParallaxBox offset={10 + (i % 3) * 6}>
-                <TiltCard className="card service-card" intensity={6}>
-                  <div className="service-inner">
-                    <div className="service-icon-wrap" style={{ background: s.accent + "1a", borderColor: s.accent + "33", color: s.accent }}>
-                      {s.icon}
-                    </div>
-                    <div className="service-content">
-                      <h3 className="service-title">{s.title}</h3>
-                      <p className="service-desc">{s.desc}</p>
-                    </div>
+              <TiltCard className="card service-card" intensity={6}>
+                <div className="service-inner">
+                  <div className="service-icon-wrap" style={{ background: s.accent + "1a", borderColor: s.accent + "33", color: s.accent }}>
+                    {s.icon}
                   </div>
-                </TiltCard>
-              </ParallaxBox>
+                  <div className="service-content">
+                    <h3 className="service-title">{s.title}</h3>
+                    <p className="service-desc">{s.desc}</p>
+                  </div>
+                </div>
+              </TiltCard>
             </Reveal>
           ))}
         </div>
@@ -862,13 +856,10 @@ function Home() {
       {/* ── TECH STACK MARQUEE ── */}
       <section className="home-section-block parallax-section">
         <div className="parallax-bg-orb orb-pink" aria-hidden="true" />
-        <ParallaxBox offset={22}>
-          <Reveal3D delay={0.05}>
-            <h2 className="section-title gradient-text">Tech Stack</h2>
-          </Reveal3D>
-        </ParallaxBox>
-        <ParallaxBox offset={10}>
-          <div className="marquee-wrapper">
+        <Reveal3D delay={0.05}>
+          <h2 className="section-title gradient-text">Tech Stack</h2>
+        </Reveal3D>
+        <div className="marquee-wrapper">
             <motion.div
               className="marquee-track"
               animate={{ x: ["0%", "-50%"] }}
@@ -879,7 +870,6 @@ function Home() {
               ))}
             </motion.div>
           </div>
-        </ParallaxBox>
       </section>
 
       {/* ── JOURNEY ── */}
