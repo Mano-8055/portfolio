@@ -1446,9 +1446,35 @@ function timeAgo(dateStr) {
   return `${Math.floor(m / 12)}y ago`;
 }
 
+function normalizeLiveUrl(url) {
+  const cleanUrl = String(url || "").trim();
+  if (!cleanUrl) return null;
+  if (/^https?:\/\//i.test(cleanUrl)) return cleanUrl;
+  if (cleanUrl.startsWith("//")) return `https:${cleanUrl}`;
+  return `https://${cleanUrl}`;
+}
+
+function getCurrentSiteUrl() {
+  if (typeof window === "undefined") return null;
+  return window.location.origin;
+}
+
+function getRepoLiveUrl(repo) {
+  const homepage = normalizeLiveUrl(repo.homepage);
+  const isPortfolioRepo = repo.full_name?.toLowerCase() === "mano-8055/portfolio";
+
+  if (isPortfolioRepo) {
+    return getCurrentSiteUrl() || homepage;
+  }
+
+  return homepage;
+}
+
 function ProjCard({ repo, index, total }) {
   const year = new Date(repo.created_at).getFullYear();
   const accent = PROJECT_ACCENTS[index % PROJECT_ACCENTS.length];
+  const liveUrl = getRepoLiveUrl(repo);
+
   return (
     <Reveal delay={index * 0.06} direction={index % 2 === 0 ? "left" : "right"}>
       <TiltCard className="card card-project" intensity={5}>
@@ -1518,9 +1544,9 @@ function ProjCard({ repo, index, total }) {
             >
               GitHub
             </a>
-            {repo.homepage && (
+            {liveUrl && (
               <a
-                href={repo.homepage}
+                href={liveUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="proj-link proj-link-live"
@@ -1560,6 +1586,7 @@ function Projects() {
 
   const featured = repos[0] ?? null;
   const gridRepos = repos.slice(1);
+  const featuredLiveUrl = featured ? getRepoLiveUrl(featured) : null;
 
   return (
     <Motion.section
@@ -1651,9 +1678,9 @@ function Projects() {
                 >
                   View on GitHub
                 </a>
-                {featured.homepage && (
+                {featuredLiveUrl && (
                   <a
-                    href={featured.homepage}
+                    href={featuredLiveUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="btn btn-ghost"
