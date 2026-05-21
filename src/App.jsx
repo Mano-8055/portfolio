@@ -1,14 +1,78 @@
 import emailjs from "emailjs-com";
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion as Motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from "framer-motion";
 import "./styles.css";
 import profilePhoto from "./assets/manobala.jpg";
 import Orb from "./components/Orb.tsx";
-import { useLenis, FloatingBlobs, TiltCard, ParallaxBox, ScrollBackground } from "./components/ScrollEffects.jsx";
+import { FloatingBlobs, TiltCard, ScrollBackground } from "./components/ScrollEffects.jsx";
+
+function useLenis(enabled = true) {
+  useEffect(() => {
+    if (!enabled) return;
+
+    const shouldSkip =
+      window.matchMedia("(max-width: 768px), (prefers-reduced-motion: reduce)").matches ||
+      navigator.connection?.saveData;
+
+    if (shouldSkip) return;
+
+    let lenisInstance = null;
+    let rafId = null;
+    let mounted = true;
+
+    (async () => {
+      try {
+        const { default: Lenis } = await import("lenis");
+        if (!mounted) return;
+
+        lenisInstance = new Lenis({
+          duration: 1.1,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          wheelMultiplier: 0.9,
+          touchMultiplier: 1.0,
+          infinite: false,
+        });
+
+        const tick = (time) => {
+          if (!mounted) return;
+          lenisInstance.raf(time);
+          rafId = requestAnimationFrame(tick);
+        };
+
+        rafId = requestAnimationFrame(tick);
+      } catch {
+        /* falls back to native scroll silently */
+      }
+    })();
+
+    return () => {
+      mounted = false;
+      cancelAnimationFrame(rafId);
+      lenisInstance?.destroy();
+    };
+  }, [enabled]);
+}
+
+function usePremiumEffects() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 769px) and (prefers-reduced-motion: no-preference)");
+    const update = () => setEnabled(media.matches && !navigator.connection?.saveData);
+
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+
+  return enabled;
+}
 
 function App() {
-  useLenis();
+  const premiumEffects = usePremiumEffects();
+  useLenis(premiumEffects);
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -16,7 +80,7 @@ function App() {
       {!loaded ? (
         <LoadingScreen key="loader" onDone={() => setLoaded(true)} />
       ) : (
-        <motion.div
+        <Motion.div
           key="main"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -26,10 +90,12 @@ function App() {
             <div className="app">
               <div className="bg-grid" aria-hidden="true" />
               <ScrollBackground />
-              <FloatingBlobs />
-              <div className="hero-orb-bg">
-                <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
-              </div>
+              {premiumEffects && <FloatingBlobs />}
+              {premiumEffects && (
+                <div className="hero-orb-bg">
+                  <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
+                </div>
+              )}
               <ScrollProgress />
               <Navbar />
               <main className="main">
@@ -38,7 +104,7 @@ function App() {
               <Footer />
             </div>
           </Router>
-        </motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );
@@ -58,7 +124,7 @@ function LoadingScreen({ onDone }) {
 
   useEffect(() => {
     const start    = performance.now();
-    const DURATION = 3200;
+    const DURATION = 1800;
     let frame;
     const tick = (now) => {
       const p = Math.min(Math.round(((now - start) / DURATION) * 100), 100);
@@ -85,7 +151,7 @@ function LoadingScreen({ onDone }) {
   ];
 
   return (
-    <motion.div
+    <Motion.div
       className="ls-screen"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.04, filter: "blur(14px)" }}
@@ -111,7 +177,7 @@ function LoadingScreen({ onDone }) {
 
       {/* ── Corner brackets ── */}
       {corners.map(({ cls, ix, iy }) => (
-        <motion.div
+        <Motion.div
           key={cls}
           className={`ls-corner ${cls}`}
           initial={{ opacity: 0, x: ix, y: iy }}
@@ -122,7 +188,7 @@ function LoadingScreen({ onDone }) {
       ))}
 
       {/* ── Full-screen shimmer sweep ── */}
-      <motion.div
+      <Motion.div
         className="ls-sweep"
         initial={{ x: "-100%" }}
         animate={{ x: "200%" }}
@@ -140,19 +206,19 @@ function LoadingScreen({ onDone }) {
 
         <div className="ls-text">
           {/* Init label — fades in then out before name reveals */}
-          <motion.p
+          <Motion.p
             className="ls-init"
             initial={{ opacity: 0, y: 7 }}
             animate={{ opacity: [0, 1, 1, 0], y: [7, 0, 0, -7] }}
             transition={{ times: [0, 0.12, 0.68, 1], duration: 1.15 }}
           >
             ◈&nbsp;&nbsp;INITIALIZING SYSTEM
-          </motion.p>
+          </Motion.p>
 
           {/* Name */}
           <div className="ls-name-wrap" style={{ perspective: "500px" }}>
             {NAME.split("").map((ch, i) => (
-              <motion.span
+              <Motion.span
                 key={i}
                 className="ls-letter"
                 initial={{ opacity: 0, y: 44, rotateX: 90, filter: "blur(8px)" }}
@@ -161,13 +227,13 @@ function LoadingScreen({ onDone }) {
                 style={{ display: "inline-block", transformStyle: "preserve-3d" }}
               >
                 {ch}
-              </motion.span>
+              </Motion.span>
             ))}
           </div>
 
           {/* Divider line */}
           <div className="ls-divider-wrap">
-            <motion.div
+            <Motion.div
               className="ls-divider"
               initial={{ scaleX: 0, opacity: 0 }}
               animate={{ scaleX: 1, opacity: 1 }}
@@ -177,19 +243,19 @@ function LoadingScreen({ onDone }) {
           </div>
 
           {/* Role */}
-          <motion.p
+          <Motion.p
             className="ls-role"
             initial={{ opacity: 0, letterSpacing: "0.65em" }}
             animate={{ opacity: 1, letterSpacing: "0.3em" }}
             transition={{ delay: 1.62, duration: 0.95, ease: "easeOut" }}
           >
             SOFTWARE ENGINEER
-          </motion.p>
+          </Motion.p>
         </div>
       </div>
 
       {/* ── Footer progress ── */}
-      <motion.div
+      <Motion.div
         className="ls-footer"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -200,22 +266,22 @@ function LoadingScreen({ onDone }) {
           <span className="ls-pct">{String(pct).padStart(3, " ")}%</span>
         </div>
         <div className="ls-bar-track">
-          <motion.div
+          <Motion.div
             className="ls-bar-fill"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: 3.2, ease: "linear" }}
+            transition={{ duration: 1.8, ease: "linear" }}
             style={{ transformOrigin: "left" }}
           />
-          <motion.div
+          <Motion.div
             className="ls-bar-glow"
             initial={{ x: "-100%" }}
             animate={{ x: "200%" }}
-            transition={{ delay: 0.4, duration: 3.0, ease: "linear" }}
+            transition={{ delay: 0.2, duration: 1.6, ease: "linear" }}
           />
         </div>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 }
 
@@ -223,7 +289,7 @@ function LoadingScreen({ onDone }) {
 function ScrollProgress() {
   const { scrollYProgress } = useScroll();
   return (
-    <motion.div
+    <Motion.div
       className="scroll-progress-bar"
       style={{ scaleX: scrollYProgress }}
     />
@@ -239,9 +305,9 @@ const pageVariants = {
 
 function PageWrap({ children }) {
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
+    <Motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -281,7 +347,7 @@ function Navbar() {
 
   return (
     <>
-      <motion.header
+      <Motion.header
         className={`navbar${scrolled ? " navbar-scrolled" : ""}`}
         initial={false}
         animate={scrolled ? {
@@ -292,13 +358,13 @@ function Navbar() {
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
         <div className="navbar-left">
-          <motion.span
+          <Motion.span
             className="logo"
             whileHover={{ scale: 1.04 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             Manobala S
-          </motion.span>
+          </Motion.span>
           <span className="role-tag">Software Engineer (Aspiring)</span>
         </div>
 
@@ -315,17 +381,17 @@ function Navbar() {
             aria-label="Toggle menu"
             aria-expanded={open}
           >
-            <motion.span animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
-            <motion.span animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }} transition={{ duration: 0.2 }} />
-            <motion.span animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
+            <Motion.span animate={open ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
+            <Motion.span animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }} transition={{ duration: 0.2 }} />
+            <Motion.span animate={open ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.25 }} />
           </button>
         </div>
-      </motion.header>
+      </Motion.header>
 
       <AnimatePresence>
         {open && (
           <>
-            <motion.div
+            <Motion.div
               className="drawer-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -333,7 +399,7 @@ function Navbar() {
               transition={{ duration: 0.25 }}
               onClick={() => setOpen(false)}
             />
-            <motion.nav
+            <Motion.nav
               className="mobile-drawer"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -346,7 +412,7 @@ function Navbar() {
               </div>
               <div className="drawer-links">
                 {links.map((l, i) => (
-                  <motion.div
+                  <Motion.div
                     key={l.to}
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -355,10 +421,10 @@ function Navbar() {
                     <NavLink to={l.to} end={l.to === "/"} className="drawer-link" onClick={handleNav}>
                       {l.label}
                     </NavLink>
-                  </motion.div>
+                  </Motion.div>
                 ))}
               </div>
-            </motion.nav>
+            </Motion.nav>
           </>
         )}
       </AnimatePresence>
@@ -380,7 +446,7 @@ function Reveal({ children, delay = 0, direction = "up" }) {
     visible: { opacity: 1, filter: "blur(0px)", y: 0, x: 0 },
   };
   return (
-    <motion.div
+    <Motion.div
       ref={ref}
       variants={variants}
       initial="hidden"
@@ -388,7 +454,7 @@ function Reveal({ children, delay = 0, direction = "up" }) {
       transition={{ duration: 0.72, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -396,7 +462,7 @@ function Reveal3D({ children, delay = 0 }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-55px" });
   return (
-    <motion.div
+    <Motion.div
       ref={ref}
       initial={{ opacity: 0, y: 72, rotateX: 22, scale: 0.93, filter: "blur(4px)" }}
       animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1, filter: "blur(0px)" } : {}}
@@ -404,7 +470,7 @@ function Reveal3D({ children, delay = 0 }) {
       style={{ transformPerspective: 1200, transformOrigin: "50% 0%" }}
     >
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -438,7 +504,7 @@ function JourneySection({ timeline }) {
         {/* ── Left: clickable milestone list ── */}
         <div className="jstage-list">
           {timeline.map((item, i) => (
-            <motion.button
+            <Motion.button
               key={item.year}
               className={`jstage-item${active === i ? " jstage-item-active" : ""}`}
               style={{ "--accent": item.accent }}
@@ -453,14 +519,14 @@ function JourneySection({ timeline }) {
                 <span className="jstage-item-title">{item.title}</span>
               </div>
               <span className="jstage-item-icon" style={{ color: item.accent }}>{item.icon}</span>
-            </motion.button>
+            </Motion.button>
           ))}
         </div>
 
         {/* ── Right: feature panel ── */}
         <div className="jstage-panel">
           <AnimatePresence mode="wait">
-            <motion.div
+            <Motion.div
               key={active}
               className="jstage-feature card"
               style={{ "--accent": cur.accent }}
@@ -503,7 +569,7 @@ function JourneySection({ timeline }) {
 
               {/* Auto-advance progress bar */}
               <div className="jstage-auto-track">
-                <motion.div
+                <Motion.div
                   className="jstage-auto-fill"
                   key={`${active}-${timerKey}`}
                   initial={{ scaleX: 0 }}
@@ -512,7 +578,7 @@ function JourneySection({ timeline }) {
                   style={{ transformOrigin: "left", background: cur.accent }}
                 />
               </div>
-            </motion.div>
+            </Motion.div>
           </AnimatePresence>
 
           {/* Step dots */}
@@ -604,38 +670,36 @@ function Home() {
     { value: "2+",   label: "Certifications", icon: <SvgIcon><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></SvgIcon> },
   ];
 
-  const SVG = (p) => <SvgIcon {...p} />;
-
   const services = [
     {
       accent: "#6366f1", title: "Frontend Dev",
       desc: "Responsive, interactive UIs with React and modern CSS.",
-      icon: <SVG><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></SVG>,
+      icon: <SvgIcon><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></SvgIcon>,
     },
     {
       accent: "#06b6d4", title: "Backend Basics",
       desc: "REST APIs, MySQL & MongoDB — connecting data to the interface.",
-      icon: <SVG><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></SVG>,
+      icon: <SvgIcon><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></SvgIcon>,
     },
     {
       accent: "#8b5cf6", title: "AI / Deep Learning",
       desc: "NVIDIA-certified in Deep Learning fundamentals and neural nets.",
-      icon: <SVG><rect x="5" y="5" width="14" height="14" rx="1"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="5"/><line x1="15" y1="2" x2="15" y2="5"/><line x1="9" y1="19" x2="9" y2="22"/><line x1="15" y1="19" x2="15" y2="22"/><line x1="2" y1="9" x2="5" y2="9"/><line x1="2" y1="15" x2="5" y2="15"/><line x1="19" y1="9" x2="22" y2="9"/><line x1="19" y1="15" x2="22" y2="15"/></SVG>,
+      icon: <SvgIcon><rect x="5" y="5" width="14" height="14" rx="1"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="5"/><line x1="15" y1="2" x2="15" y2="5"/><line x1="9" y1="19" x2="9" y2="22"/><line x1="15" y1="19" x2="15" y2="22"/><line x1="2" y1="9" x2="5" y2="9"/><line x1="2" y1="15" x2="5" y2="15"/><line x1="19" y1="9" x2="22" y2="9"/><line x1="19" y1="15" x2="22" y2="15"/></SvgIcon>,
     },
     {
       accent: "#ec4899", title: "UI / UX Design",
       desc: "Figma prototypes and design systems that feel intuitive.",
-      icon: <SVG><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></SVG>,
+      icon: <SvgIcon><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></SvgIcon>,
     },
     {
       accent: "#f59e0b", title: "Dev Tools",
       desc: "Git, VS Code, and modern build tooling for clean workflows.",
-      icon: <SVG><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></SVG>,
+      icon: <SvgIcon><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></SvgIcon>,
     },
     {
       accent: "#10b981", title: "Responsive Design",
       desc: "Mobile-first layouts that work across every screen size.",
-      icon: <SVG><rect x="2" y="4" width="13" height="10" rx="1"/><path d="M2 17h13M9 21h4"/><rect x="17" y="9" width="5" height="8" rx="1"/></SVG>,
+      icon: <SvgIcon><rect x="2" y="4" width="13" height="10" rx="1"/><path d="M2 17h13M9 21h4"/><rect x="17" y="9" width="5" height="8" rx="1"/></SvgIcon>,
     },
   ];
 
@@ -656,7 +720,7 @@ function Home() {
     <div className="home-page">
 
       {/* ── HERO ── */}
-      <motion.section
+      <Motion.section
         className="section home-section"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -668,28 +732,28 @@ function Home() {
             <div className="hero-text">
 
               {/* Availability badge */}
-              <motion.div className="hero-badge" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.55, delay: 0.05 }}>
+              <Motion.div className="hero-badge" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.55, delay: 0.05 }}>
                 <span className="hero-badge-dot" />
                 Available for Internships
-              </motion.div>
+              </Motion.div>
 
               {/* Eyebrow */}
-              <motion.p className="hero-eyebrow" initial={{ opacity: 0, letterSpacing: "0.5em" }} animate={{ opacity: 1, letterSpacing: "0.23em" }} transition={{ duration: 0.9, delay: 0.12 }}>
+              <Motion.p className="hero-eyebrow" initial={{ opacity: 0, letterSpacing: "0.5em" }} animate={{ opacity: 1, letterSpacing: "0.23em" }} transition={{ duration: 0.9, delay: 0.12 }}>
                 Hello, I'm
-              </motion.p>
+              </Motion.p>
 
               {/* Name */}
-              <motion.h1 className="hero-title" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
+              <Motion.h1 className="hero-title" initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
                 Manobala S
-              </motion.h1>
+              </Motion.h1>
 
               {/* Accent bar */}
-              <motion.div className="hero-title-bar" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.38, duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ transformOrigin: "left" }} />
+              <Motion.div className="hero-title-bar" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.38, duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ transformOrigin: "left" }} />
 
               {/* Cycling role */}
               <div className="hero-role-wrap">
                 <AnimatePresence mode="wait">
-                  <motion.span
+                  <Motion.span
                     key={roleIdx}
                     className="hero-role-text"
                     initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
@@ -698,29 +762,29 @@ function Home() {
                     transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
                   >
                     {HERO_ROLES[roleIdx]}
-                  </motion.span>
+                  </Motion.span>
                 </AnimatePresence>
               </div>
 
               {/* Description */}
-              <motion.p className="hero-description" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}>
+              <Motion.p className="hero-description" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}>
                 Integrated M.Tech Software Engineering student at VIT Vellore — building modern web apps with React, JavaScript, and a strong eye for design.
-              </motion.p>
+              </Motion.p>
 
               {/* Buttons */}
-              <motion.div className="hero-buttons" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5 }}>
+              <Motion.div className="hero-buttons" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.5 }}>
                 <a href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link" className="btn btn-primary" target="_blank" rel="noreferrer">
                   Download Resume
                 </a>
                 <Link to="/contact" className="btn btn-ghost">Contact Me</Link>
-              </motion.div>
+              </Motion.div>
 
               {/* Info chips */}
-              <motion.div className="hero-chips" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.62 }}>
+              <Motion.div className="hero-chips" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.62 }}>
                 <span className="hero-chip">📍 Gudiyatham, Vellore</span>
                 <span className="hero-chip">📞 9626488199</span>
                 <span className="hero-chip">✉ shankarmanogym@gmail.com</span>
-              </motion.div>
+              </Motion.div>
 
             </div>
 
@@ -778,11 +842,11 @@ function Home() {
             </TiltCard>
 
         </div>
-      </motion.section>
+      </Motion.section>
 
       {/* ── STATS BAR ── */}
       <div>
-        <motion.div
+        <Motion.div
           className="stats-bar"
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -792,7 +856,7 @@ function Home() {
           {stats.map((s, i) => (
             <React.Fragment key={s.label}>
               {i > 0 && <div className="stat-divider" aria-hidden="true" />}
-              <motion.div
+              <Motion.div
                 className="stat-item"
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -802,10 +866,10 @@ function Home() {
                 <span className="stat-icon">{s.icon}</span>
                 <CountUp raw={s.value} />
                 <span className="stat-label">{s.label}</span>
-              </motion.div>
+              </Motion.div>
             </React.Fragment>
           ))}
-        </motion.div>
+        </Motion.div>
       </div>
 
       {/* ── WHAT I DO ── */}
@@ -841,7 +905,7 @@ function Home() {
           <h2 className="section-title gradient-text">Tech Stack</h2>
         </Reveal3D>
         <div className="marquee-wrapper">
-            <motion.div
+            <Motion.div
               className="marquee-track"
               animate={{ x: ["0%", "-50%"] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -849,7 +913,7 @@ function Home() {
               {[...stack, ...stack].map((tech, i) => (
                 <span key={i} className="marquee-chip">{tech}</span>
               ))}
-            </motion.div>
+            </Motion.div>
           </div>
       </section>
 
@@ -939,7 +1003,7 @@ function Projects() {
   const gridRepos = repos.slice(1);
 
   return (
-    <motion.section className="section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
+    <Motion.section className="section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
       <h2 className="section-title gradient-text">Projects</h2>
       <p className="section-subtitle">Latest repositories from my GitHub, pulled automatically.</p>
 
@@ -949,7 +1013,7 @@ function Projects() {
       {!loading && !error && featured && (
         <>
           {/* ── Spotlight — most recently pushed repo ── */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease: [0.22,1,0.36,1] }}
@@ -1005,7 +1069,7 @@ function Projects() {
                 )}
               </div>
             </TiltCard>
-          </motion.div>
+          </Motion.div>
 
           {/* ── More projects grid ── */}
           {gridRepos.length > 0 && (
@@ -1020,7 +1084,7 @@ function Projects() {
           )}
         </>
       )}
-    </motion.section>
+    </Motion.section>
   );
 }
 
@@ -1092,7 +1156,7 @@ function UIUXDesign() {
   ];
 
   return (
-    <motion.section className="section" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+    <Motion.section className="section" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
       <div className="uiux-page">
 
         {/* Header */}
@@ -1136,7 +1200,7 @@ function UIUXDesign() {
           <div className="uiux-projects-grid">
             {designProjects.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.1} direction={i % 2 === 0 ? "left" : "right"}>
-                <motion.div
+                <Motion.div
                   className="card uiux-project-card"
                   whileHover={{ y: -8, scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 280, damping: 22 }}
@@ -1152,7 +1216,7 @@ function UIUXDesign() {
                     {p.tags.map(t => <span key={t} className="uiux-tag" style={{ "--tag-color": p.color }}>{t}</span>)}
                   </div>
                   <div className="uiux-accent-line" style={{ background: `linear-gradient(90deg, ${p.color}, transparent)` }} />
-                </motion.div>
+                </Motion.div>
               </Reveal>
             ))}
           </div>
@@ -1169,7 +1233,7 @@ function UIUXDesign() {
                 <div className="tool-row">
                   <span className="tool-name">{t.name}</span>
                   <div className="tool-bar-bg">
-                    <motion.div
+                    <Motion.div
                       className="tool-bar-fill"
                       style={{ background: `linear-gradient(90deg, ${t.color}, ${t.color}99)` }}
                       initial={{ width: 0 }}
@@ -1207,7 +1271,7 @@ function UIUXDesign() {
         </section>
 
       </div>
-    </motion.section>
+    </Motion.section>
   );
 }
 
@@ -1232,7 +1296,7 @@ function Skills() {
   ];
 
   return (
-    <motion.section className="section" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+    <Motion.section className="section" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
       <h2 className="section-title gradient-text">Skills</h2>
       <p className="section-subtitle">Technical and interpersonal skills I use to build and ship software.</p>
       <div className="skills-grid">
@@ -1255,7 +1319,7 @@ function Skills() {
           </Reveal>
         ))}
       </div>
-    </motion.section>
+    </Motion.section>
   );
 }
 
@@ -1286,7 +1350,7 @@ const CERTS = [
 
 function Certifications() {
   return (
-    <motion.section className="section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
+    <Motion.section className="section" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
       <h2 className="section-title gradient-text">Certifications</h2>
       <p className="section-subtitle">Verified credentials from industry-recognised platforms.</p>
 
@@ -1344,7 +1408,7 @@ function Certifications() {
           </Reveal>
         ))}
       </div>
-    </motion.section>
+    </Motion.section>
   );
 }
 
@@ -1379,15 +1443,15 @@ function Contact() {
   ];
 
   return (
-    <motion.section className="section" id="contact-cta" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
+    <Motion.section className="section" id="contact-cta" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22,1,0.36,1] }}>
       <h2 className="section-title gradient-text">Contact</h2>
       <p className="section-subtitle">Got an opportunity, idea, or collaboration in mind? Drop a message.</p>
 
       {/* Availability banner */}
-      <motion.div className="ctc-banner" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}>
+      <Motion.div className="ctc-banner" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}>
         <span className="ctc-banner-dot" />
         Available for Internships · Usually responds within 24 hours
-      </motion.div>
+      </Motion.div>
 
       <div className="contact-grid">
 
@@ -1441,16 +1505,16 @@ function Contact() {
 
             <AnimatePresence mode="wait">
               {status === "sent" && (
-                <motion.div key="ok" className="ctc-status ctc-status-ok" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}>
+                <Motion.div key="ok" className="ctc-status ctc-status-ok" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}>
                   <SvgIcon><polyline points="20 6 9 17 4 12"/></SvgIcon>
                   Message sent successfully! I'll get back to you soon.
-                </motion.div>
+                </Motion.div>
               )}
               {status === "error" && (
-                <motion.div key="err" className="ctc-status ctc-status-err" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}>
+                <Motion.div key="err" className="ctc-status ctc-status-err" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}>
                   <SvgIcon><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></SvgIcon>
                   Something went wrong. Please try again.
-                </motion.div>
+                </Motion.div>
               )}
             </AnimatePresence>
 
@@ -1474,7 +1538,7 @@ function Contact() {
         </Reveal>
 
       </div>
-    </motion.section>
+    </Motion.section>
   );
 }
 

@@ -1,43 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-
-/* ── Lenis Smooth Inertia Scroll ── */
-export function useLenis() {
-  useEffect(() => {
-    let lenisInstance = null;
-    let rafId = null;
-    let mounted = true;
-
-    (async () => {
-      try {
-        const { default: Lenis } = await import("lenis");
-        if (!mounted) return;
-        lenisInstance = new Lenis({
-          duration: 1.1,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          smoothWheel: true,
-          wheelMultiplier: 0.9,
-          touchMultiplier: 1.0, // native touch feel on mobile
-          infinite: false,
-        });
-        const tick = (time) => {
-          if (!mounted) return;
-          lenisInstance.raf(time);
-          rafId = requestAnimationFrame(tick);
-        };
-        rafId = requestAnimationFrame(tick);
-      } catch {
-        /* falls back to native scroll silently */
-      }
-    })();
-
-    return () => {
-      mounted = false;
-      cancelAnimationFrame(rafId);
-      lenisInstance?.destroy();
-    };
-  }, []);
-}
+import { useRef, useState, useCallback } from "react";
+import { motion as Motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 /* ── Ambient Floating Gradient Blobs — CSS-only, no scroll JS overhead ── */
 export function FloatingBlobs() {
@@ -71,9 +33,9 @@ export function ParallaxBox({ children, offset = 50, className = "", style = {} 
   const y = useTransform(scrollYProgress, [0, 1], [-offset, offset]);
   const smoothY = useSpring(y, { stiffness: 80, damping: 24 });
   return (
-    <motion.div ref={ref} style={{ y: smoothY, ...style }} className={className}>
+    <Motion.div ref={ref} style={{ y: smoothY, ...style }} className={className}>
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 
@@ -123,7 +85,7 @@ export function TiltCard({
   }, [rotateX, rotateY, scale]);
 
   return (
-    <motion.div
+    <Motion.div
       ref={ref}
       className={`tilt-card-wrap ${className}`}
       onMouseMove={onMove}
@@ -148,6 +110,6 @@ export function TiltCard({
         />
       )}
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }

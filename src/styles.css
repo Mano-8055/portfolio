@@ -2845,3 +2845,43 @@ a.ctc-row-value:hover { color: #a5b4fc; }
   .tilt-glare { display: none; }
 }
 
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .srb-blobs,
+  .hero-title,
+  .hero-badge-dot,
+  .hcs-dot,
+  .proj-spot-dot,
+  .ctc-banner-dot,
+  .footer-available-dot {
+    animation: none !important;
+  }
+
+  .hero-orb-bg,
+  .floating-blobs {
+    display: none !important;
+  }
+
+  .card,
+  .hero-card,
+  .stats-bar,
+  .desktop-nav,
+  .btn-ghost,
+  .btn-outline,
+  .footer,
+  .navbar-scrolled,
+  .mobile-drawer,
+  .drawer-backdrop,
+  .marquee-chip {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .parallax-bg-orb {
+    filter: blur(36px);
+    opacity: 0.22;
+  }
+
+  .tilt-card-wrap.card::after {
+    display: none;
+  }
+}

@@ -178,10 +178,14 @@ void main() {
 
     function resize() {
       if (!container) return;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      const renderScale = window.innerWidth < 1200 ? 0.55 : 0.7;
       const width = container.clientWidth;
       const height = container.clientHeight;
-      renderer.setSize(width * dpr, height * dpr);
+      renderer.setSize(
+        Math.max(1, Math.floor(width * dpr * renderScale)),
+        Math.max(1, Math.floor(height * dpr * renderScale))
+      );
       gl.canvas.style.width = width + "px";
       gl.canvas.style.height = height + "px";
       program.uniforms.iResolution.value.set(
@@ -200,8 +204,10 @@ void main() {
 
     let targetHover = 0;
     let lastTime = 0;
+    let lastFrameTime = 0;
     let currentRot = 0;
     const rotationSpeed = 0.3;
+    const frameInterval = 1000 / 30;
 
     // Listen on window so hover works even when pointer-events on container are none
     const handleMouseMove = (e: MouseEvent) => {
@@ -222,8 +228,10 @@ void main() {
     let rafId: number;
     const update = (t: number) => {
       rafId = requestAnimationFrame(update);
-      const dt = (t - lastTime) * 0.001;
+      if (t - lastFrameTime < frameInterval) return;
+      const dt = lastTime ? (t - lastTime) * 0.001 : 0;
       lastTime = t;
+      lastFrameTime = t;
       program.uniforms.iTime.value = t * 0.001;
       program.uniforms.hue.value = hue;
       program.uniforms.hoverIntensity.value = hoverIntensity;
