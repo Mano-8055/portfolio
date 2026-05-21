@@ -163,7 +163,7 @@ function LoadingScreen({ onDone }) {
 
   useEffect(() => {
     const start = performance.now();
-    const DURATION = leanMotion ? 1000 : 1800;
+    const DURATION = 2500;
     let frame;
     const tick = (now) => {
       const p = Math.min(Math.round(((now - start) / DURATION) * 100), 100);
