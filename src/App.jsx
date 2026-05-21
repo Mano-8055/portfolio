@@ -1,18 +1,38 @@
 import emailjs from "emailjs-com";
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, lazy, useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
 import { motion as Motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from "framer-motion";
 import "./styles.css";
 import profilePhoto from "./assets/manobala.jpg";
-import Orb from "./components/Orb.tsx";
 import { FloatingBlobs, TiltCard, ScrollBackground } from "./components/ScrollEffects.jsx";
+
+const Orb = lazy(() => import("./components/Orb.tsx"));
+
+function useLeanMotion() {
+  const [lean, setLean] = useState(true);
+
+  useEffect(() => {
+    const media = window.matchMedia(
+      "(max-width: 1024px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce)"
+    );
+    const update = () => setLean(media.matches || Boolean(navigator.connection?.saveData));
+
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+
+  return lean;
+}
 
 function useLenis(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
 
     const shouldSkip =
-      window.matchMedia("(max-width: 768px), (prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia(
+        "(max-width: 1024px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce)"
+      ).matches ||
       navigator.connection?.saveData;
 
     if (shouldSkip) return;
@@ -55,23 +75,9 @@ function useLenis(enabled = true) {
   }, [enabled]);
 }
 
-function usePremiumEffects() {
-  const [enabled, setEnabled] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 769px) and (prefers-reduced-motion: no-preference)");
-    const update = () => setEnabled(media.matches && !navigator.connection?.saveData);
-
-    update();
-    media.addEventListener?.("change", update);
-    return () => media.removeEventListener?.("change", update);
-  }, []);
-
-  return enabled;
-}
-
 function App() {
-  const premiumEffects = usePremiumEffects();
+  const leanMotion = useLeanMotion();
+  const premiumEffects = !leanMotion;
   useLenis(premiumEffects);
   const [loaded, setLoaded] = useState(false);
 
@@ -88,12 +94,15 @@ function App() {
         >
           <Router>
             <div className="app">
+              <ScrollToTop />
               <div className="bg-grid" aria-hidden="true" />
               <ScrollBackground />
               {premiumEffects && <FloatingBlobs />}
               {premiumEffects && (
                 <div className="hero-orb-bg">
-                  <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
+                  <Suspense fallback={null}>
+                    <Orb hue={0} hoverIntensity={0.3} rotateOnHover={true} />
+                  </Suspense>
                 </div>
               )}
               <ScrollProgress />
@@ -110,6 +119,18 @@ function App() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+  }, [pathname]);
+
+  return null;
+}
+
 /* ---------------- LOADING SCREEN ---------------- */
 const STARS = Array.from({ length: 22 }, () => ({
   x:   Math.random() * 100,
@@ -121,10 +142,11 @@ const STARS = Array.from({ length: 22 }, () => ({
 
 function LoadingScreen({ onDone }) {
   const [pct, setPct] = useState(0);
+  const leanMotion = useLeanMotion();
 
   useEffect(() => {
     const start    = performance.now();
-    const DURATION = 1800;
+    const DURATION = leanMotion ? 1000 : 1800;
     let frame;
     const tick = (now) => {
       const p = Math.min(Math.round(((now - start) / DURATION) * 100), 100);
@@ -134,7 +156,7 @@ function LoadingScreen({ onDone }) {
     frame = requestAnimationFrame(tick);
     const timeout = setTimeout(onDone, DURATION);
     return () => { cancelAnimationFrame(frame); clearTimeout(timeout); };
-  }, [onDone]);
+  }, [leanMotion, onDone]);
 
   const NAME = "MANOBALA";
   const loadLabel =
@@ -270,14 +292,14 @@ function LoadingScreen({ onDone }) {
             className="ls-bar-fill"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: 1.8, ease: "linear" }}
+            transition={{ duration: leanMotion ? 1 : 1.8, ease: "linear" }}
             style={{ transformOrigin: "left" }}
           />
           <Motion.div
             className="ls-bar-glow"
             initial={{ x: "-100%" }}
             animate={{ x: "200%" }}
-            transition={{ delay: 0.2, duration: 1.6, ease: "linear" }}
+            transition={{ delay: leanMotion ? 0 : 0.2, duration: leanMotion ? 0.9 : 1.6, ease: "linear" }}
           />
         </div>
       </Motion.div>
@@ -435,15 +457,20 @@ function Navbar() {
 /* ---------------- SCROLL REVEAL WRAPPERS ---------------- */
 function Reveal({ children, delay = 0, direction = "up" }) {
   const ref = useRef(null);
+  const leanMotion = useLeanMotion();
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const variants = {
-    hidden: {
+    hidden: leanMotion ? {
+      opacity: 0,
+      y: 12,
+      x: 0,
+    } : {
       opacity: 0,
       filter: "blur(3px)",
       y: direction === "up" ? 48 : direction === "down" ? -48 : 0,
       x: direction === "left" ? 55 : direction === "right" ? -55 : 0,
     },
-    visible: { opacity: 1, filter: "blur(0px)", y: 0, x: 0 },
+    visible: leanMotion ? { opacity: 1, y: 0, x: 0 } : { opacity: 1, filter: "blur(0px)", y: 0, x: 0 },
   };
   return (
     <Motion.div
@@ -451,7 +478,7 @@ function Reveal({ children, delay = 0, direction = "up" }) {
       variants={variants}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      transition={{ duration: 0.72, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: leanMotion ? 0.28 : 0.72, delay: leanMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </Motion.div>
@@ -460,14 +487,15 @@ function Reveal({ children, delay = 0, direction = "up" }) {
 
 function Reveal3D({ children, delay = 0 }) {
   const ref = useRef(null);
+  const leanMotion = useLeanMotion();
   const inView = useInView(ref, { once: true, margin: "-55px" });
   return (
     <Motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 72, rotateX: 22, scale: 0.93, filter: "blur(4px)" }}
-      animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1, filter: "blur(0px)" } : {}}
-      transition={{ duration: 1.05, delay, ease: [0.22, 1, 0.36, 1] }}
-      style={{ transformPerspective: 1200, transformOrigin: "50% 0%" }}
+      initial={leanMotion ? { opacity: 0, y: 12 } : { opacity: 0, y: 72, rotateX: 22, scale: 0.93, filter: "blur(4px)" }}
+      animate={inView ? (leanMotion ? { opacity: 1, y: 0 } : { opacity: 1, y: 0, rotateX: 0, scale: 1, filter: "blur(0px)" }) : {}}
+      transition={{ duration: leanMotion ? 0.3 : 1.05, delay: leanMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
+      style={leanMotion ? undefined : { transformPerspective: 1200, transformOrigin: "50% 0%" }}
     >
       {children}
     </Motion.div>
@@ -621,6 +649,7 @@ function SvgIcon({ children, ...rest }) {
 /* ---------------- COUNT-UP STAT ---------------- */
 function CountUp({ raw }) {
   const ref    = useRef(null);
+  const leanMotion = useLeanMotion();
   const inView = useInView(ref, { once: true, margin: "-20px" });
   const [display, setDisplay] = useState("0");
 
@@ -630,7 +659,8 @@ function CountUp({ raw }) {
   const decimals = ((raw.split(".")[1] ?? "").replace(/\D/g, "") || "").length;
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || leanMotion) return;
+
     const DURATION = 1600;
     const startTime = performance.now();
 
@@ -642,9 +672,9 @@ function CountUp({ raw }) {
       else setDisplay(target.toFixed(decimals)); // ensure exact final value
     };
     requestAnimationFrame(tick);
-  }, [inView, target, decimals]);
+  }, [inView, leanMotion, target, decimals]);
 
-  return <span ref={ref} className="stat-value">{display}{suffix}</span>;
+  return <span ref={ref} className="stat-value">{leanMotion ? raw : `${display}${suffix}`}</span>;
 }
 
 const PROJECT_ACCENTS = [
@@ -657,6 +687,7 @@ const HERO_ROLES = ["Software Engineer", "React Developer", "UI/UX Designer", "M
 
 function Home() {
 
+  const leanMotion = useLeanMotion();
   const [roleIdx, setRoleIdx] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setRoleIdx(i => (i + 1) % HERO_ROLES.length), 2800);
@@ -907,10 +938,10 @@ function Home() {
         <div className="marquee-wrapper">
             <Motion.div
               className="marquee-track"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              animate={leanMotion ? { x: 0 } : { x: ["0%", "-50%"] }}
+              transition={leanMotion ? { duration: 0 } : { duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              {[...stack, ...stack].map((tech, i) => (
+              {(leanMotion ? stack : [...stack, ...stack]).map((tech, i) => (
                 <span key={i} className="marquee-chip">{tech}</span>
               ))}
             </Motion.div>

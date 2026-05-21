@@ -1,5 +1,20 @@
-import { useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion as Motion, useScroll, useTransform, useSpring } from "framer-motion";
+
+function useCanTilt() {
+  const [canTilt, setCanTilt] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1025px) and (hover: hover) and (pointer: fine)");
+    const update = () => setCanTilt(media.matches && !navigator.connection?.saveData);
+
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+
+  return canTilt;
+}
 
 /* ── Ambient Floating Gradient Blobs — CSS-only, no scroll JS overhead ── */
 export function FloatingBlobs() {
@@ -49,6 +64,7 @@ export function TiltCard({
   ...props
 }) {
   const ref = useRef(null);
+  const canTilt = useCanTilt();
   const [glarePos, setGlarePos] = useState({ mx: 50, my: 50 });
   const [hovered, setHovered] = useState(false);
 
@@ -59,6 +75,7 @@ export function TiltCard({
 
   const onMove = useCallback(
     (e) => {
+      if (!canTilt) return;
       const el = ref.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
@@ -68,13 +85,14 @@ export function TiltCard({
       rotateY.set((x - 0.5) * intensity);
       setGlarePos({ mx: x * 100, my: y * 100 });
     },
-    [intensity, rotateX, rotateY]
+    [canTilt, intensity, rotateX, rotateY]
   );
 
   const onEnter = useCallback(() => {
+    if (!canTilt) return;
     scale.set(1.04);
     setHovered(true);
-  }, [scale]);
+  }, [canTilt, scale]);
 
   const onLeave = useCallback(() => {
     rotateX.set(0);
@@ -95,12 +113,12 @@ export function TiltCard({
         rotateX,
         rotateY,
         scale,
-        transformPerspective: 1000,
+        transformPerspective: canTilt ? 1000 : undefined,
         ...style,
       }}
       {...props}
     >
-      {glare && (
+      {glare && canTilt && (
         <div
           className="tilt-glare"
           style={{

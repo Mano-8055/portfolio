@@ -2845,12 +2845,20 @@ a.ctc-row-value:hover { color: #a5b4fc; }
   .tilt-glare { display: none; }
 }
 
-@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+@media (max-width: 1024px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
   .srb-blobs,
   .hero-title,
+  .ls-star,
+  .ls-aurora-1,
+  .ls-aurora-2,
+  .ls-aurora-3,
+  .ls-ring-1,
+  .ls-ring-2,
+  .ls-ring-3,
   .hero-badge-dot,
   .hcs-dot,
   .proj-spot-dot,
+  .ctc-spinner,
   .ctc-banner-dot,
   .footer-available-dot {
     animation: none !important;
@@ -2883,5 +2891,16 @@ a.ctc-row-value:hover { color: #a5b4fc; }
 
   .tilt-card-wrap.card::after {
     display: none;
+  }
+
+  .marquee-wrapper {
+    overflow: visible;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .marquee-track {
+    flex-wrap: wrap;
+    width: auto;
   }
 }
