@@ -682,6 +682,16 @@ body {
   border-color: rgba(56,189,248,0.35);
 }
 
+@media (max-width: 1100px) {
+  .home-section { margin-top: 1.6rem; }
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.9fr);
+    gap: 1.5rem;
+  }
+  .hero-title { font-size: clamp(2.55rem, 5vw, 3.7rem); }
+  .hero-card { padding: 1.35rem; }
+}
+
 /* ─── BUTTONS ─── */
 .btn {
   border-radius: 999px;
@@ -1616,7 +1626,15 @@ a.ctc-row-value:hover { color: #a5b4fc; }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
-  .hero-grid { grid-template-columns: 1fr; }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 1.7rem;
+    align-items: start;
+  }
+  .hero-text {
+    max-width: 680px;
+    align-items: flex-start;
+  }
   .hero-card { max-width: 420px; width: 100%; margin-inline: auto; }
   .contact-grid { grid-template-columns: 1fr; }
 }
@@ -1625,23 +1643,73 @@ a.ctc-row-value:hover { color: #a5b4fc; }
   .desktop-nav { display: none; }
   .hamburger   { display: flex; }
   .navbar { flex-wrap: nowrap; padding-inline: 1rem; }
-  .main { padding-inline: 1rem; }
-  .hero-title { font-size: clamp(1.8rem, 6vw, 2.2rem); }
+  .main {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem 1rem 2.5rem;
+    overflow-x: clip;
+  }
+  .home-section { margin-top: 1.15rem; }
+  .home-section-block { margin-top: 3rem; }
+  .section-title { font-size: clamp(1.45rem, 6vw, 1.9rem); }
+  .section-subtitle { font-size: 0.9rem; max-width: 100%; }
+  .hero-title { font-size: clamp(2.1rem, 10vw, 3rem); line-height: 1.05; }
+  .hero-eyebrow { letter-spacing: 0.16em; }
   .hero-description { font-size: 0.9rem; }
+  .hero-buttons { width: 100%; }
+  .hero-buttons .btn { flex: 1 1 160px; min-height: 42px; }
+  .hero-chip {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .hero-card {
+    max-width: 100%;
+    border-radius: 1rem;
+  }
+  .hero-card-github {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .cards-grid, .skills-grid { gap: 1rem; }
 }
 
 @media (max-width: 480px) {
-  .hero-chips { flex-direction: column; }
+  .hero-text { gap: 0.7rem; }
+  .hero-badge { font-size: 0.66rem; padding-inline: 0.7rem; }
+  .hero-role-wrap { height: 1.45rem; }
+  .hero-role-text { font-size: 0.95rem; }
+  .hero-chips { flex-direction: column; align-items: stretch; }
+  .hero-chip { width: 100%; border-radius: 0.75rem; }
+  .hero-buttons { flex-direction: column; gap: 0.6rem; }
+  .hero-buttons .btn { width: 100%; flex-basis: auto; }
   .card { padding: 1rem; }
   .hero-card { padding: 1.2rem; }
+  .hero-card-profile { align-items: flex-start; }
+  .hero-card-text { font-size: 0.84rem; }
+  .hero-tag { font-size: 0.66rem; }
   .stat-item { padding: 1rem 0.7rem; }
   .stat-value { font-size: 1.4rem; }
+}
+
+@media (max-width: 360px) {
+  .main { padding-inline: 0.75rem; }
+  .hero-title { font-size: 1.95rem; }
+  .hero-card-photo-wrap { width: 46px; height: 46px; }
 }
 
 /* ─── HOME PAGE SECTIONS ─── */
 .home-page { display: flex; flex-direction: column; gap: 0; }
 .home-section-block { margin-top: 4rem; position: relative; z-index: 1; padding-bottom: 0.5rem; }
+
+@supports (content-visibility: auto) {
+  .home-section-block {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 420px;
+  }
+}
 
 /* STATS BAR */
 /* ─── STATS BAR — unified glass pill ─── */
@@ -1757,10 +1825,15 @@ a.ctc-row-value:hover { color: #a5b4fc; }
 }
 
 @media (max-width: 560px) {
-  .stats-bar { flex-wrap: wrap; border-radius: 1.2rem; }
-  .stat-item  { flex: 1 0 40%; padding: 1.2rem 0.8rem; }
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 1.2rem;
+  }
+  .stat-item  { min-width: 0; padding: 1.05rem 0.7rem; }
   .stat-divider { display: none; }
   .stat-value { font-size: 1.6rem; }
+  .stat-label { font-size: 0.56rem; letter-spacing: 0.14em; }
 }
 
 /* SERVICES GRID */
@@ -1772,10 +1845,13 @@ a.ctc-row-value:hover { color: #a5b4fc; }
   padding: 0.25rem 0.1rem 0.5rem; /* breathing room so parallax transforms don't clip at edges */
 }
 @media (max-width: 860px) {
-  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
   .services-grid { grid-template-columns: 1fr; }
+  .service-card { padding: 1rem; }
+  .service-inner { gap: 0.75rem; }
+  .service-icon-wrap { width: 36px; height: 36px; }
 }
 
 .service-card {
@@ -2128,9 +2204,32 @@ a.ctc-row-value:hover { color: #a5b4fc; }
 @media (max-width: 768px) {
   .jstage { grid-template-columns: 1fr; gap: 1.2rem; }
   .jstage-panel { position: static; }
+  .jstage-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+  .jstage-item {
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.035);
+    padding: 0.8rem;
+  }
   .jstage-item-title { white-space: normal; }
   .jstage-feature { min-height: 200px; padding: 1.5rem 1.5rem 2rem; }
   .jstage-ghost { font-size: 4.5rem; }
+}
+
+@media (max-width: 520px) {
+  .jstage { margin-top: 1.5rem; }
+  .jstage-list { grid-template-columns: 1fr; }
+  .jstage-item { gap: 0.75rem; }
+  .jstage-feature {
+    padding: 1.25rem 1rem 1.8rem;
+    min-height: auto;
+  }
+  .jstage-feat-icon { width: 48px; height: 48px; border-radius: 12px; }
+  .jstage-feat-meta { align-items: flex-start; gap: 0.75rem; }
+  .jstage-ghost { font-size: 3.8rem; right: 0.75rem; }
 }
 
 /* ─── SCROLL PROGRESS BAR ─── */
@@ -2855,12 +2954,8 @@ a.ctc-row-value:hover { color: #a5b4fc; }
   .ls-ring-1,
   .ls-ring-2,
   .ls-ring-3,
-  .hero-badge-dot,
-  .hcs-dot,
-  .proj-spot-dot,
   .ctc-spinner,
-  .ctc-banner-dot,
-  .footer-available-dot {
+  .ctc-banner-dot {
     animation: none !important;
   }
 
