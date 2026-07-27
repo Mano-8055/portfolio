@@ -1461,7 +1461,8 @@ function getCurrentSiteUrl() {
 
 function getRepoLiveUrl(repo) {
   const homepage = normalizeLiveUrl(repo.homepage);
-  const isPortfolioRepo = repo.full_name?.toLowerCase() === "mano-8055/portfolio";
+  const isPortfolioRepo =
+    repo.full_name?.toLowerCase() === "mano-8055/portfolio";
 
   if (isPortfolioRepo) {
     return getCurrentSiteUrl() || homepage;
@@ -1786,9 +1787,9 @@ function UIUXDesign() {
       status: "Completed",
     },
     {
-      title: "VIT Campus App UI",
+      title: "MIE App UI",
       category: "Academic Project",
-      desc: "Mobile UI concept for a campus event and resource booking app. Covers user flows, low-fi wireframes, and a hi-fi Figma prototype with micro-interactions.",
+      desc: "Mobile UI concept for a Investors and Entrepreneurs app. Covers user flows, low-fi wireframes, and a hi-fi Figma prototype with micro-interactions.",
       tags: ["Mobile UI", "User Flow", "Prototype"],
       color: "#ec4899",
       status: "Prototype",
