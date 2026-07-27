@@ -1106,6 +1106,18 @@ function Home() {
       ),
     },
     {
+      year: "2026",
+      accent: "#a855f7",
+      title: "Microsoft Certified: Azure Fundamentals",
+      desc: "Completed AZ-900 course on Microsoft Learn platform.",
+      icon: (
+        <SvgIcon>
+          <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+          <path d="m9 12 2 2 4-4" />
+        </SvgIcon>
+      ),
+    },
+    {
       year: "2027",
       accent: "#10b981",
       title: "Graduation (Target)",
@@ -2194,6 +2206,21 @@ const CERTS = [
     year: "2026",
     ids: ["VTLO18RT2L44"],
     link: "https://drive.google.com/file/d/1DUIXY6gv35V4ttmdETDOSv7lE3_ir5hx/view?usp=drivesdk",
+    icon: (
+      <SvgIcon>
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </SvgIcon>
+    ),
+  },
+  {
+    accent: "#f7558e",
+    title: "Azure Fundamentals AZ-900",
+    issuer: "MICROSOFT",
+    date: "July 19, 2026",
+    year: "2026",
+    ids: ["F08CE0B023BFD512"],
+    link: "https://learn.microsoft.com/api/credentials/share/en-gb/ManobalaS-2270/F08CE0B023BFD512?sharingId=3F97F45DCEBB7620",
     icon: (
       <SvgIcon>
         <polyline points="16 18 22 12 16 6" />
