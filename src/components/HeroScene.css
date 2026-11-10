@@ -1,0 +1,119 @@
+.geo-scene {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+  cursor: crosshair;
+}
+
+.geo-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Mouse parallax via CSS custom properties */
+  --shift-x: calc(var(--mx, 0) * 8px);
+  --shift-y: calc(var(--my, 0) * 8px);
+}
+
+/* ── Orbiting rings ── */
+.geo-orbit {
+  position: absolute;
+  width: 70%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geo-orbit-1 {
+  transform:
+    rotateX(65deg)
+    rotateZ(calc(var(--mx, 0) * 4deg));
+  animation: orbit-1 14s linear infinite;
+}
+
+.geo-orbit-2 {
+  transform:
+    rotateX(65deg)
+    rotateZ(calc(var(--mx, 0) * -3deg));
+  animation: orbit-2 20s linear infinite reverse;
+}
+
+@keyframes orbit-1 {
+  from { transform: rotateX(65deg) rotateZ(0deg); }
+  to   { transform: rotateX(65deg) rotateZ(360deg); }
+}
+@keyframes orbit-2 {
+  from { transform: rotateX(55deg) rotateZ(0deg); }
+  to   { transform: rotateX(55deg) rotateZ(360deg); }
+}
+
+.geo-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Central polygon ── */
+.geo-center {
+  position: absolute;
+  width: 52%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: poly-float 6s ease-in-out infinite alternate;
+  transform: translate(var(--shift-x), var(--shift-y));
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes poly-float {
+  from { transform: translateY(0px) rotate(0deg); }
+  to   { transform: translateY(-10px) rotate(3deg); }
+}
+
+.geo-poly-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.25));
+}
+
+/* ── Floating accent dot ── */
+.geo-float-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  top: 32%;
+  right: 28%;
+  animation: dot-float 4s ease-in-out infinite alternate;
+  opacity: 0.85;
+  box-shadow: 0 0 12px currentColor;
+}
+
+@keyframes dot-float {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(6px, -8px) scale(0.7); }
+}
+
+/* ── Background grid ── */
+.geo-grid-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .geo-orbit-1,
+  .geo-orbit-2,
+  .geo-center,
+  .geo-float-dot {
+    animation: none;
+  }
+}
