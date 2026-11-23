@@ -454,7 +454,7 @@ function Footer() {
           <a href="https://github.com/Mano-8055" target="_blank" rel="noreferrer" className="footer-link">GitHub</a>
           <a href="mailto:shankarmanogym@gmail.com" className="footer-link">Email</a>
           <a
-            href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
+            href="https://drive.google.com/file/d/1d8ed7Zrdl-7B1wjy3md9C-jpPqbOdBn0/view?usp=drive_link"
             target="_blank" rel="noreferrer" className="footer-link"
           >
             Resume
@@ -516,7 +516,7 @@ function HeroSection() {
             </p>
             <div className="hero-actions">
               <a
-                href="https://drive.google.com/file/d/1B0HVAnI4L3NdmkFU4xEfrdl2oFekNOgW/view?usp=share_link"
+                href="https://drive.google.com/file/d/1d8ed7Zrdl-7B1wjy3md9C-jpPqbOdBn0/view?usp=drive_link"
                 className="btn btn-primary magnetic"
                 target="_blank"
                 rel="noreferrer"
