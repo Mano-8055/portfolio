@@ -704,6 +704,13 @@ const TIMELINE = [
   { year: "Nov 2025", title: "Quantum Computing — VIT SCORE", desc: "Completed Quantum Computing using Qiskit as a value-added course at VIT Vellore." },
   { year: "Feb 2026", title: "Scrimba React Certification", desc: "Completed the Learn React course on Scrimba — hooks, component patterns, state management, and building small apps end to end." },
   { year: "Jul 2026", title: "Microsoft Azure Fundamentals AZ-900", desc: "Passed the AZ-900 exam. Core Azure services, cloud concepts, and pricing models." },
+
+  {
+    year: "Jul 2026",
+    title: "Microsoft Certified: Azure Fundamentals (AZ-900)",
+    desc: "Earned the Microsoft AZ-900 certification, demonstrating foundational knowledge of cloud concepts, Azure core services, security, governance, and pricing.",
+  },
+
   { year: "2027", title: "Graduation — target", desc: "Completing the integrated M.Tech in 2027." },
 ];
 
